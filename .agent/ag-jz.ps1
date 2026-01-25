@@ -80,6 +80,11 @@ switch ($Command) {
                 Copy-Item ".agent_tmp\.agent\scripts" -Destination ".agent" -Recurse -Force
                 Copy-Item ".agent_tmp\.agent\ARCHITECTURE.md" -Destination ".agent" -Force
                 
+                # Copy hidden shared assets if they exist
+                if (Test-Path ".agent_tmp\.agent\.shared") { Copy-Item ".agent_tmp\.agent\.shared" -Destination ".agent" -Recurse -Force }
+                if (Test-Path ".agent_tmp\.agent\assets") { Copy-Item ".agent_tmp\.agent\assets" -Destination ".agent" -Recurse -Force }
+
+                
                 Remove-Item ".agent_tmp" -Recurse -Force
                 Setup-ComplexSkills -BaseDir ".agent"
                 

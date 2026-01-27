@@ -3,6 +3,13 @@ import shutil
 import urllib.request
 import zipfile
 import tempfile
+import subprocess
+import sys
+
+# Globals
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# .agent/scripts/sync_kits.py -> .agent
+AGENT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 
 # IDENTITY GUARD: Files that should NEVER be overwritten or deleted by sync
 PROTECTED_FILES = [
@@ -48,11 +55,6 @@ def safe_merge_dir(src, dest):
 
 def sync_kit(repo_url, kit_name):
     print(f"\n🔄 Sincronizando {kit_name} desde {repo_url}...")
-    
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    # Path is usually .agent/scripts/sync_kits.py, so go up twice for project root
-    project_root = os.path.abspath(os.path.join(script_dir, "..", ".."))
-    agent_dir = os.path.join(project_root, ".agent")
     
     branches = ["main", "master"]
     success = False
@@ -105,7 +107,7 @@ def sync_kit(repo_url, kit_name):
         sub_folders = ["agents", "skills", "workflows", "scripts"]
         for sub in sub_folders:
             src = os.path.join(extracted_folder, ".agent", sub)
-            dest = os.path.join(agent_dir, sub)
+            dest = os.path.join(AGENT_DIR, sub) # Use global AGENT_DIR
             
             if os.path.exists(src):
                 print(f"  [>] Unificando {sub} (Identity-Safe Merge)...")
@@ -113,11 +115,25 @@ def sync_kit(repo_url, kit_name):
 
     print(f"✅ Sincronização de {kit_name} concluída!")
 
-if __name__ == "__main__":
+def main():
     # Kit 1 (Awesome Skills)
     sync_kit("https://github.com/sickn33/antigravity-awesome-skills.git", "Awesome Skills")
     
     # Kit 2 (Antigravity Kit)
     sync_kit("https://github.com/vudovn/antigravity-kit.git", "Antigravity Kit")
     
-    print("\n✨ Camada OZI: Unificação concluída com Identidade Guardada!")
+    # 4. Auto-Index Skills
+    print("\n📦 Updating Skills Index...")
+    indexer_path = os.path.join(AGENT_DIR, "scripts", "generate_index.py")
+    if os.path.exists(indexer_path):
+        try:
+            subprocess.run([sys.executable, indexer_path], check=True)
+        except subprocess.CalledProcessError as e:
+             print(f"⚠️  Indexer failed with exit code {e.returncode}")
+        except Exception as e:
+             print(f"⚠️  Indexer execution error: {e}")
+    else:
+        print(f"⚠️  Indexer script not found at {indexer_path}")
+
+if __name__ == "__main__":
+    main()

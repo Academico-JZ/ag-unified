@@ -81,9 +81,9 @@ function downloadFile(url, dest) {
             reject(err);
         });
 
-        request.setTimeout(15000, () => {
+        request.setTimeout(60000, () => {
             request.destroy();
-            reject(new Error("Download timeout after 15s"));
+            reject(new Error("Download timeout after 60s (Check your internet connection)"));
         });
     });
 }

@@ -1,26 +1,29 @@
 {
-    "name": "omni-jz",
-    "version": "4.2.1",
-    "description": "Omni-JZ Elite Kit - Unstoppable Digital Agency",
-    "main": "index.js",
-    "bin": {
-        "omni-jz": "./bin/ag-jz.js",
-        "ag-jz": "./bin/ag-jz.js"
-    },
-    "scripts": {
-        "check": "python .agent/scripts/checklist.py .",
-        "verify": "python .agent/scripts/verify_all.py .",
-        "status": "node bin/ag-jz.js status",
-        "sync": "node bin/ag-jz.js sync",
-        "fix": "node bin/ag-jz.js fix"
-    },
-    "keywords": [
-        "antigravity",
-        "elite",
-        "ai-agent",
-        "automation",
-        "omni-jz"
-    ],
-    "author": "Academico-JZ",
-    "license": "MIT"
+  "name": "antigravity-jz",
+  "version": "1.0.0",
+  "description": "Antigravity Full Kit - JZ Edition (Portability & Power)",
+  "bin": {
+    "ag-jz": "bin/cli.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js",
+    "init": "node bin/cli.js"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "cursor",
+    "gemini",
+    "claude",
+    "antigravity"
+  ],
+  "author": "Academico-JZ",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Academico-JZ/antigravity-jz.git"
+  },
+  "engines": {
+    "node": ">=14"
+  }
 }

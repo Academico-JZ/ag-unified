@@ -1,4 +1,4 @@
-# 🌌 Antigravity Kit (JZ Edition)
+# 🌌 Antigravity Kit (JZ e RM Edition)
 
 > **A fusão definitiva entre o `Awesome Skills` e o `Antigravity Kit`. 255+ Skills, 20 Agentes e 11+ Workflows em um único ambiente de alta performance.**
 
@@ -66,6 +66,6 @@ python .agent/scripts/sync_kits.py
 
 ## 🤝 Créditos
 Inspirado pelos trabalhos de **[sickn33](https://github.com/sickn33)** e **[vudovn](https://github.com/vudovn)**.
-Refatorado e modularizado por **[Academico-JZ](https://github.com/Academico-JZ)** e **[RM](https://github.com/rmmeurer)**.
+Refatorado e modularizado por **[Academico-JZ](https://github.com/Academico-JZ)** e **[RMMeurer](https://github.com/rmmeurer)**.
 
 > Este projeto opera sob a licença MIT, respeitando as liberdades dos códigos originais.

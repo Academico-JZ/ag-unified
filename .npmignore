@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.agent/temp_*/
+.agent/temp.zip
+.gemini/antigravity/temp_npm_install/

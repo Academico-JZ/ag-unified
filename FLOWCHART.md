@@ -13,33 +13,34 @@ graph TD
     P1A -- "Support 302/Redirect" --> P2[2. Download do Core JZ]
     
     %% Passo 2
-    subgraph "Fase de Instalação (Zero-Dependency)"
+    subgraph "Fase de Instalação (Resiliência)"
         P2 --> P2A[Criação da estrutura em $HOME/.gemini]
-        P2A --> P2B[Monitoramento de Progresso em Tempo Real]
-        P2B --> P2C[Blindagem de Caminhos Dinâmicos]
+        P2A --> P2B[Monitoramento de Progresso]
+        P2B --> P2C[Identity Guard: Proteção de GEMINI.md]
     end
 
     %% Passo 3
     P2C --> P3[3. Fase de Unificação - Hydration]
     
-    subgraph "Fase de Unificação (Scripts de Sincronismo)"
+    subgraph "Fase de Unificação (Update Inteligente)"
         P3 -- "Chama sync_kits.py" --> P3A[Busca Agentes/Workflows - vudovn]
-        P3 -- "Chama sync_kits.py" --> P3B[Busca 250+ Skills - sickn33]
-        P3A --> P3C[Merge Inteligente de Arquivos]
+        P3 -- "Chama sync_kits.py" --> P3B[Busca 255+ Skills - sickn33]
+        P3A --> P3C[Merge Seletivo de Arquivos]
         P3B --> P3C
-        P3C --> P3D[Preservação das Regras JZ Edition]
+        P3C --> P3D{Preservar JZ Identity?}
+        P3D -- "Sim" --> P3E[Mantém Regras e Scripts JZ como Soberanos]
     end
 
     %% Passo 4
-    P3D --> P4[4. Estado Final: Kit Global PRONTO]
+    P3E --> P4[4. Estado Final: Kit Global PRONTO]
     
     %% Passo 5
-    P4 -- "Usuário executa em novo projeto" --> P5[5. Linkagem de Workspace]
+    P4 -- "Vínculo com Novo Projeto" --> P5[5. Linkagem de Workspace]
     
-    subgraph "Uso no Projeto"
+    subgraph "Projeto Ativo"
         P5 -- "setup_workspace.ps1" --> P5A[Criação da pasta .agent local]
-        P5A --> P5B[Mapeamento via .pointer]
-        P5B --> P5C[IA Ativa com Habilidades Integradas]
+        P5A --> P5B[Virtualização via .pointer]
+        P5B --> P5C[IA Ativa com Power-ups Externos + Regras JZ]
     end
 ```
 
@@ -50,23 +51,22 @@ graph TD
 ### Estágio 1: O Gatilho e a Rede
 Tudo começa com o comando de uma linha. O instalador agora é inteligente: ele detecta redirecionamentos do GitHub (302), possui timeouts de segurança (60s) e fornece feedback visual constante para garantir que a instalação não "trave" silenciosamente.
 
-### Estágio 2: A Fundação (Portabilidade Total)
-Nesta fase, o instalador cria a estrutura de diretórios e extrai o "cérebro" do sistema. A lógica foi blindada para ignorar nomes de pastas dinâmicas (ex: `antigravity-jz-rm-main`), garantindo que o kit funcione em qualquer máquina desde a primeira execução ("Zero-Dependency").
+### Estágio 2: A Fundação (Zero-Dependency & Resiliência)
+Nesta fase, o instalador cria a estrutura de diretórios e extrai o "cérebro" do sistema. O mecanismo **Identity Guard** entra em ação: ele garante que o seu `GEMINI.md` personalizado e os scripts de portabilidade sejam instalados como arquivos protegidos. A lógica ignora nomes de pastas dinâmicas, garantindo que o kit funcione em qualquer máquina desde a primeira execução.
 
-### Estágio 3: A Unificação (O Pulo do Gato)
-O script `sync_kits.py` entra em ação automaticamente:
-1. Ele busca a orquestração de agentes do repositório **Vudovn**.
-2. Ele busca as centenas de habilidades do repositório **Awesome Skills**.
-3. Ele realiza o **Merge**: Insere as peças baixadas preservando o `GEMINI.md` e os scripts do JZ Edition como soberanos.
+### Estágio 3: A Unificação (Update Inteligente)
+O script `sync_kits.py` realiza um upgrade modular:
+1. Ele busca a orquestração de agentes (vudovn) e a biblioteca massiva de habilidades (sickn33).
+2. **Merge Seletivo**: O script injeta as novas habilidades nas pastas correspondentes, mas possui um "firewall" lógico que **impede a sobrescrita** da identidade JZ Edition (regras globais e scripts de linkagem).
 
-### Estágio 4: O Kit Global
-Agora a máquina tem uma biblioteca completa (Kit Original + Skills + Regras JZ) centralizada na pasta do usuário (`$HOME`). Ela está pronta para ser usada por qualquer projeto na mesma máquina.
+### Estágio 4: O Kit Global Protegido
+Agora a máquina tem o equilíbrio perfeito: o poder bruto das ferramentas originais com a inteligência e personalização do **JZ Edition** preservadas. Tudo centralizado no `$HOME`.
 
 ### Estágio 5: Ativação no Projeto
 Ao iniciar um código novo:
-- O `setup_workspace.ps1` (agora restaurado no repositório) vincula o projeto local à instalação global.
-- O mapeamento via `.pointer` permite que a IA localize as habilidades globais.
-- **Final:** A IA lê o `GEMINI.md` e o kit é ativado com superpoderes.
+- O `setup_workspace.ps1` vincula o projeto local à instalação global.
+- A IA lê o `GEMINI.md` (protegido durante o sync) e o kit é ativado.
+- **Resultado:** Suas personalizações e regras socráticas funcionam em conjunto com centenas de habilidades externas.
 
 ---
 

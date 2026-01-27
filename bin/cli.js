@@ -3,7 +3,7 @@
 /**
  * Antigravity Kit (JZ Edition) - Node.js Installer
  * 
- * Provides "npx ag-jz init" functionality.
+ * Provides "npx ag-jz-rm init" functionality.
  * Compatible with Windows, macOS, and Linux.
  */
 
@@ -83,8 +83,6 @@ async function main() {
             execSync(`tar -xf "${zipPath}" -C "${tempDir}"`);
         } catch (e) {
             // Fallback for older Windows without tar?
-            // Actually, if they have Node, they likely have tar or unzip. 
-            // If strictly Windows Powershell:
             if (process.platform === 'win32') {
                  execSync(`powershell -c "Expand-Archive -Path '${zipPath}' -DestinationPath '${tempDir}' -Force"`);
             } else {
@@ -108,8 +106,21 @@ async function main() {
         // 5. Cleanup
         fs.rmSync(tempDir, { recursive: true, force: true });
 
-        // 6. Success
-        log(`\n✅ Installation Complete!`, colors.green);
+        // 6. Auto-Hydration (Sync Kits)
+        const syncScript = path.join(installDir, '.agent', 'scripts', 'sync_kits.py');
+        if (fs.existsSync(syncScript)) {
+            log(`\n🔄 Auto-Hydrating Skills (Vudovn + Awesome Skills)...`, colors.cyan);
+            try {
+                // Check if python is available
+                execSync('python --version', { stdio: 'ignore' });
+                execSync(`python "${syncScript}"`, { stdio: 'inherit' });
+            } catch (e) {
+                log(`[!] Python not found or sync failed. Please run manually: python "${syncScript}"`, colors.yellow);
+            }
+        }
+
+        // 7. Success
+        log(`\n✅ Installation & Hydration Complete!`, colors.green);
         log(`📍 Location: ${installDir}`, colors.gray);
         log(`\n🚀 Next Steps:`, colors.cyan);
         

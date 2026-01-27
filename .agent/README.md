@@ -63,6 +63,19 @@ Mantenha suas skills sempre atualizadas baixando as novidades dos repositórios 
 python .agent/scripts/sync_kits.py
 ```
 
+### 🛡️ Identity Guard (Proteção de Identidade)
+O sincronizador usa **Merge Seletivo**: adiciona skills novas sem deletar ou sobrescrever suas customizações. Arquivos core como `GEMINI.md` são **protegidos automaticamente**.
+
+---
+
+## 🔧 Recursos de Resiliência
+
+| Feature | Descrição |
+| :--- | :--- |
+| **Socket Inactivity Timeout** | Só falha se não houver tráfego por 20s (conexões lentas funcionam). |
+| **Retry Automático** | 3 tentativas de download antes de desistir. |
+| **Feedback de Velocidade** | Exibe KB/s em tempo real durante o download. |
+
 ---
 
 ## 🤝 Créditos

@@ -104,14 +104,28 @@ def sync_kit(repo_url, kit_name):
             return
 
         # Sync folders
-        sub_folders = ["agents", "skills", "workflows", "scripts"]
+        sub_folders = ["agents", "skills", "workflows", "scripts", ".shared"]
         for sub in sub_folders:
             src = os.path.join(extracted_folder, ".agent", sub)
-            dest = os.path.join(AGENT_DIR, sub) # Use global AGENT_DIR
+            dest = os.path.join(AGENT_DIR, sub)
             
             if os.path.exists(src):
                 print(f"  [>] Unificando {sub} (Identity-Safe Merge)...")
                 safe_merge_dir(src, dest)
+
+        # Special handling for GEMINI.md (Update Check)
+        remote_gemini = os.path.join(extracted_folder, ".agent", "GEMINI.md")
+        if not os.path.exists(remote_gemini):
+            remote_gemini = os.path.join(extracted_folder, ".agent", "rules", "GEMINI.md")
+        
+        local_gemini = os.path.join(AGENT_DIR, "GEMINI.md")
+        
+        if os.path.exists(remote_gemini) and os.path.exists(local_gemini):
+            with open(remote_gemini, 'r', encoding='utf-8') as rf, open(local_gemini, 'r', encoding='utf-8') as lf:
+                if rf.read() != lf.read():
+                    print(f"\n📢 [UPDATE] O arquivo GEMINI.md do {kit_name} foi atualizado!")
+                    print(f"👉 Seu GEMINI.md customizado foi mantido, mas você pode querer revisar as novidades em:")
+                    print(f"   {remote_gemini}")
 
     print(f"✅ Sincronização de {kit_name} concluída!")
 

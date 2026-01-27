@@ -90,6 +90,14 @@ if (Test-Path $GlobalGemini) {
     else {
         Write-Host " [=] Linker: GEMINI.md (Preserved Custom)" -ForegroundColor DarkGray
     }
+    
+    # Auto-Install Rules for AI Editors (Cursor, etc.)
+    $ProjectRoot = Get-Location
+    $CursorRules = Join-Path $ProjectRoot ".cursorrules"
+    
+    # Always update .cursorrules to match the active GEMINI.md
+    Copy-Item -Path $LocalGemini -Destination $CursorRules -Force
+    Write-Host " [+] Rules: Installed to .cursorrules (Auto-Active)" -ForegroundColor Green
 }
 
 # 4. Create .pointer file (Optional, for explicit tracking)

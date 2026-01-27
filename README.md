@@ -45,8 +45,9 @@ ag-jz-rm init
    ```powershell
    powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.gemini\antigravity\kit\scripts\setup_workspace.ps1"
    ```
-3. No seu chat com a IA (Gemini/Claude Code/Cursor), peça:
-   > "Leia o arquivo `.agent/GEMINI.md` para ativar suas novas capacidades."
+3. **Pronto!** O ambiente está configurado.
+   *   As regras (`.cursorrules`) foram aplicadas automaticamente.
+   *   Use `/plan` ou `/create` para começar.
 
 ---
 

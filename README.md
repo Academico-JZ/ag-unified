@@ -28,7 +28,6 @@ Se você já tem o Node.js instalado:
 ```bash
 npx ag-jz-rm init
 ```
-*(Nota: Se ainda não publicado no npm, use: `npx github:Academico-JZ/antigravity-jz init`)*
 
 ---
 

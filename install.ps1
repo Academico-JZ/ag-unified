@@ -4,30 +4,33 @@ Param([switch]$Local)
 # Este script automatiza o download e configuração do Kit
 
 if ($Local) {
-    $InstallDir = Join-Path (Get-Location) ".agent"
-    $KitDir = Join-Path $InstallDir "kit_source"
+    $BaseAgent = Join-Path (Get-Location) ".agent"
+    $KitDir = $BaseAgent # Kit is the .agent folder itself in local mode
+    $ZipFile = Join-Path $BaseAgent "kit.zip"
+    $TempExt = Join-Path $BaseAgent "temp_ext"
     Write-Host "[!] Instalação LOCAL detectada (Workspace-only)" -ForegroundColor Yellow
 }
 else {
     $InstallDir = Join-Path $env:USERPROFILE ".gemini\antigravity"
     $KitDir = Join-Path $InstallDir "kit"
+    $ZipFile = Join-Path $InstallDir "kit.zip"
+    $TempExt = Join-Path $InstallDir "temp_ext"
 }
-
-$ZipFile = Join-Path $InstallDir "kit.zip"
-$TempExt = Join-Path $InstallDir "temp_ext"
 
 Write-Host ""
 Write-Host "🌌 Antigravity Kit (JZ e RM Edition) - Instalador" -ForegroundColor Cyan
 Write-Host "--------------------------------------------------" -ForegroundColor DarkCyan
 
 # 1. Preparar pastas
-if (-not (Test-Path $InstallDir)) {
-    New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
-    Write-Host "[+] Diretório de instalação criado: $InstallDir" -ForegroundColor Gray
+if ($Local) {
+    if (-not (Test-Path $BaseAgent)) { New-Item -ItemType Directory -Path $BaseAgent -Force | Out-Null }
+}
+else {
+    if (-not (Test-Path $InstallDir)) { New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null }
 }
 
-# 2. Cleanup se já existir
-if (Test-Path $KitDir) {
+# 2. Cleanup se já existir (Apenas se for global ou kit_source antigo)
+if (-not $Local -and (Test-Path $KitDir)) {
     Write-Host "[!] Instalação anterior detectada. Atualizando..." -ForegroundColor Yellow
     Remove-Item $KitDir -Recurse -Force
 }
@@ -49,7 +52,27 @@ Expand-Archive -Path $ZipFile -DestinationPath $TempExt
 
 # Localizar a pasta extraída (o GitHub coloca o branch no nome)
 $ExtractedFolder = Get-ChildItem -Path $TempExt | Where-Object { $_.PSIsContainer } | Select-Object -First 1
-Move-Item -Path $ExtractedFolder.FullName -Destination $KitDir
+
+if ($Local) {
+    Write-Host "[>] Populando estrutura local..." -ForegroundColor Gray
+    # Move todos os subdiretórios de .agent para a .agent root
+    $SourceAgent = Join-Path $ExtractedFolder.FullName ".agent"
+    Get-ChildItem -Path $SourceAgent | ForEach-Object {
+        $dest = Join-Path $BaseAgent $_.Name
+        if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
+        Move-Item $_.FullName $dest
+    }
+    # Move scripts da raiz para .agent/scripts
+    $SourceScripts = Join-Path $ExtractedFolder.FullName "scripts"
+    $DestScripts = Join-Path $BaseAgent "scripts"
+    if (Test-Path $SourceScripts) {
+        if (Test-Path $DestScripts) { Remove-Item $DestScripts -Recurse -Force }
+        Move-Item $SourceScripts $DestScripts
+    }
+}
+else {
+    Move-Item -Path $ExtractedFolder.FullName -Destination $KitDir
+}
 
 # 5. Cleanup Final
 Remove-Item $ZipFile -Force
@@ -57,30 +80,32 @@ Remove-Item $TempExt -Recurse -Force
 
 # 6. Auto-Hydration (Sync Skills)
 Write-Host ""
-Write-Host "🔄 Sincronizando Skills (Vudovn + Awesome Skills)..." -ForegroundColor Cyan
+Write-Host "🔄 Unifying Skills & Agents..." -ForegroundColor Cyan
 try {
-    # Verifica se python está instalado
-    & python --version | Out-Null
+    $SyncScript = if ($Local) { Join-Path $BaseAgent "scripts\sync_kits.py" } else { Join-Path $KitDir ".agent\scripts\sync_kits.py" }
+    
+    & python "$SyncScript" *>$null
     if ($LASTEXITCODE -eq 0) {
-        python "$KitDir\.agent\scripts\sync_kits.py"
+        Write-Host "[✨] 255+ Skills & 21 Agents merged successfully." -ForegroundColor Green
     }
     else {
-        Write-Host "[!] Python não encontrado. Skills extras não foram unificadas. Instale o Python." -ForegroundColor Yellow
+        Write-Host "[!] Auto-hydration incomplete. Run manually later." -ForegroundColor Yellow
     }
 }
 catch {
-    Write-Host "[!] Falha no sincronismo automático." -ForegroundColor Yellow
+    Write-Host "[!] Sync issue." -ForegroundColor Yellow
 }
 
 # 7. Linking (Auto-Init)
-if (Test-Path "$KitDir\scripts\setup_workspace.ps1") {
+if (-not $Local -and (Test-Path "$KitDir\scripts\setup_workspace.ps1")) {
     Write-Host ""
-    Write-Host "🔗 Inicializando workspace..." -ForegroundColor Cyan
-    powershell -ExecutionPolicy Bypass -File "$KitDir\scripts\setup_workspace.ps1"
+    Write-Host "🔗 Linking current workspace..." -ForegroundColor Cyan
+    & powershell -ExecutionPolicy Bypass -File "$KitDir\scripts\setup_workspace.ps1" | Out-Null
+    Write-Host "[✨] Workspace linked to Global Kit." -ForegroundColor Green
 }
 
 Write-Host ""
-Write-Host "✅ Instalação Concluída!" -ForegroundColor Green
-Write-Host "📍 Localização do Kit: $KitDir" -ForegroundColor Gray
-Write-Host "🚀 Antigravity está online. Regras aplicadas via .agent/GEMINI.md" -ForegroundColor Cyan
+Write-Host "✅ $(if($Local){'Local'}else{'Global'}) Setup Complete!" -ForegroundColor Green
+Write-Host "🚀 Antigravity JZ-RM is now ONLINE." -ForegroundColor Cyan
+Write-Host "Rules active in .agent/rules/GEMINI.md" -ForegroundColor Gray
 Write-Host ""

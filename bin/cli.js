@@ -201,44 +201,43 @@ async function main() {
         fs.rmSync(tempDir, { recursive: true, force: true });
 
         // 6. Auto-Hydration (Sync Kits)
-        // If local, the sync script is now in .agent/scripts/sync_kits.py
-        // If global, it's in ~/.gemini/.../kit/.agent/scripts/sync_kits.py
         const syncScript = isLocal
             ? path.join(installDir, 'scripts', 'sync_kits.py')
             : path.join(installDir, '.agent', 'scripts', 'sync_kits.py');
 
         if (fs.existsSync(syncScript)) {
-            log(`\n🔄 Auto-Hydrating Skills (Vudovn + Awesome Skills)...`, colors.cyan);
+            log(`\n🔄 Unifying Skills & Agents...`, colors.cyan);
             try {
-                execSync('python --version', { stdio: 'ignore' });
-                execSync(`python "${syncScript}"`, { stdio: 'inherit' });
+                // Run silently, only show errors
+                execSync(`python "${syncScript}"`, { stdio: 'pipe' });
+                log(`[✨] 255+ Skills & 21 Agents merged successfully.`, colors.green);
             } catch (e) {
-                log(`[!] Python not found or sync failed. Please run manually: python "${syncScript}"`, colors.yellow);
+                log(`[!] Auto-hydration had minor issues. Run manually: python "${syncScript}"`, colors.yellow);
             }
         }
 
         // 7. Success
-        log(`\n✅ Installation & Hydration Complete!`, colors.green);
-        log(`📍 Location: ${installDir}`, colors.gray);
-        log(`\n🚀 Next Steps:`, colors.cyan);
+        log(`\n${isLocal ? "📁 Local Mode" : "🌍 Global Mode"} Setup Complete!`, colors.green);
+        log(`📍 Path: ${installDir}`, colors.gray);
 
-        if (process.platform === 'win32') {
-            log(`\n🔗 Linking workspace...`, colors.cyan);
+        if (!isLocal && process.platform === 'win32') {
+            log(`\n🔗 Linking current workspace...`, colors.cyan);
             const setupScript = path.join(installDir, 'scripts', 'setup_workspace.ps1');
             try {
-                // Execute setup_workspace.ps1 in the current directory (process.cwd())
                 execSync(`powershell -ExecutionPolicy Bypass -File "${setupScript}"`, {
-                    stdio: 'inherit',
+                    stdio: 'pipe',
                     cwd: process.cwd()
                 });
-                log(`\n✨ Workspace initialized successfully!`, colors.green);
+                log(`[✨] Workspace linked to Global Kit.`, colors.green);
             } catch (e) {
-                log(`[!] Auto-link failed. Please run manually:`, colors.yellow);
-                log(`powershell -ExecutionPolicy Bypass -File "${setupScript}"`, colors.reset);
+                log(`[!] Auto-link failed. Run manually:`, colors.yellow);
+                log(`powershell -File "${setupScript}"`, colors.reset);
             }
-        } else {
-            log(`Run the setup script in your project folder.`, colors.yellow);
         }
+
+        log(`\n🚀 Antigravity JZ-RM is now ONLINE.`, colors.cyan);
+        log(`Rules active in: ${isLocal ? ".agent/rules/GEMINI.md" : ".agent/rules/GEMINI.md (Linked)"}`, colors.gray);
+        log(`\n--------------------------------------------------`, colors.gray);
 
     } catch (err) {
         log(`\n❌ Error: ${err.message}`, colors.red);

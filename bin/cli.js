@@ -106,31 +106,14 @@ function logHeader() {
     log("──────────────────────────", colors.gray);
 }
 
-async function fetchRepo(url, name, destDir) {
-    const zipPath = path.join(destDir, `${name}.zip`);
-    log(`[>] Downloading ${name} library...`, colors.gray);
-    await downloadFile(url, zipPath);
-
-    const extractPath = path.join(destDir, name);
-    if (!fs.existsSync(extractPath)) fs.mkdirSync(extractPath, { recursive: true });
-
+function safeRemove(dir) {
+    if (!fs.existsSync(dir)) return;
     try {
-        execSync(`tar -xf "${zipPath}" -C "${extractPath}"`, { stdio: 'ignore' });
+        // Use retry settings for Windows locks
+        fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
     } catch (e) {
-        if (process.platform === 'win32') {
-            execSync(`powershell -c "Expand-Archive -Path '${zipPath}' -DestinationPath '${extractPath}' -Force"`, { stdio: 'ignore' });
-        } else {
-            throw e;
-        }
+        log(` [!] Note: Could not clean up temporary folder ${dir}. You can delete it manually.`, colors.gray);
     }
-    fs.unlinkSync(zipPath);
-
-    const extractedFolder = fs.readdirSync(extractPath).find(n => {
-        const fullPath = path.join(extractPath, n);
-        return fs.statSync(fullPath).isDirectory() && n !== "__MACOSX";
-    });
-
-    return path.join(extractPath, extractedFolder);
 }
 
 function mergeFolders(src, dest) {
@@ -145,7 +128,11 @@ function mergeFolders(src, dest) {
         if (fs.statSync(sPath).isDirectory()) {
             mergeFolders(sPath, dPath);
         } else {
-            fs.copyFileSync(sPath, dPath);
+            try {
+                fs.copyFileSync(sPath, dPath);
+            } catch (e) {
+                log(` [!] Failed to copy ${item}: ${e.message}`, colors.yellow);
+            }
         }
     });
 }
@@ -157,14 +144,15 @@ async function main() {
     const homeDir = getHomeDir();
     const globalKitDir = path.join(homeDir, KIT_DIR_NAME);
     const installDir = isLocal ? path.join(process.cwd(), ".agent") : globalKitDir;
-    const tempDir = path.join(process.cwd(), "tmp_jz_rm");
+
+    // Use system temp for less friction
+    const tempDir = path.join(os.tmpdir(), `jz_rm_turbo_${Date.now()}`);
 
     try {
         // 1. Base Layer Initialization
         log(`\n🚀 Initializing Antigravity Core (@vudovn/ag-kit)...`, colors.cyan);
         try {
             if (isLocal) {
-                // Ensure target dir doesn't block giget
                 execSync(`npx -y @vudovn/ag-kit init`, { stdio: 'inherit' });
             } else {
                 log(`[>] Global mode: Installing @vudovn/ag-kit core...`, colors.gray);
@@ -172,26 +160,32 @@ async function main() {
                 execSync(`ag-kit init`, { stdio: 'inherit' });
             }
         } catch (e) {
-            log(`[!] Base initialization warned or failed. Attempting to continue...`, colors.yellow);
+            log(` [!] Base installer finished with notice. Attempting augmentation...`, colors.yellow);
         }
 
         // 2. High-Octane Skills Augmentation (Sickn33)
         log(`\nTurbo-charging Skills Ecosystem...`, colors.cyan);
-        if (fs.existsSync(tempDir)) fs.rmSync(tempDir, { recursive: true, force: true });
-        fs.mkdirSync(tempDir, { recursive: true });
+        log(` [>] Fetching Sickn33 awesome-skills via giget...`, colors.gray);
 
-        const skillsPath = await fetchRepo(REPO_SKILLS_URL, "skills", tempDir);
-        const skillsSource = path.join(skillsPath, '.agent', 'skills');
+        try {
+            // Use giget directly via npx for maximum extraction robustness
+            execSync(`npx -y giget github:sickn33/antigravity-awesome-skills#main "${tempDir}"`, { stdio: 'ignore' });
 
-        if (fs.existsSync(skillsSource)) {
-            log(` [+] Injecting 255+ Specialist Skills`, colors.gray);
-            mergeFolders(skillsSource, path.join(installDir, 'skills'));
+            const skillsSource = path.join(tempDir, '.agent', 'skills');
+            if (fs.existsSync(skillsSource)) {
+                log(` [+] Injecting 255+ Specialist Skills`, colors.gray);
+                mergeFolders(skillsSource, path.join(installDir, 'skills'));
+            } else {
+                log(` [!] Could not find skills in downloaded folder.`, colors.yellow);
+            }
+        } catch (e) {
+            log(` [!] Turbo-charge failed: ${e.message}`, colors.red);
+            log(` [!] Run 'ag-jz-rm update' later to retry augmentation.`, colors.yellow);
         }
 
         // 3. Identity Governance (GEMINI.md)
         log(`Applying Identity & Rules Governance...`, colors.cyan);
 
-        // Use the local GEMINI.md from this package as the source of truth
         const localGemini = path.join(__dirname, '..', '.agent', 'rules', 'GEMINI.md');
         const destRulesDir = path.join(installDir, 'rules');
         const destGemini = path.join(destRulesDir, 'GEMINI.md');
@@ -200,9 +194,16 @@ async function main() {
         if (fs.existsSync(localGemini)) {
             fs.copyFileSync(localGemini, destGemini);
             log(` [✨] Antigravity JZ-RM Rules Activated`, colors.green);
+        } else {
+            // Fallback for npx run: check if .agent is in same level as bin
+            const fallbackGemini = path.join(__dirname, 'rules', 'GEMINI.md');
+            if (fs.existsSync(fallbackGemini)) {
+                fs.copyFileSync(fallbackGemini, destGemini);
+                log(` [✨] Antigravity JZ-RM Rules Activated (fallback)`, colors.green);
+            }
         }
 
-        // Copy auxiliary scripts too
+        // Copy auxiliary scripts
         const localScripts = path.join(__dirname, '..', '.agent', 'scripts');
         const destScripts = path.join(installDir, 'scripts');
         if (fs.existsSync(localScripts)) {
@@ -210,7 +211,7 @@ async function main() {
         }
 
         // 4. Cleanup
-        fs.rmSync(tempDir, { recursive: true, force: true });
+        safeRemove(tempDir);
 
         // 5. Final Orchestration (Indexing)
         const indexerScript = path.join(destScripts, 'generate_index.py');
@@ -231,7 +232,8 @@ async function main() {
 
     } catch (err) {
         log(`\n❌ Setup Error: ${err.message}`, colors.red);
-        if (fs.existsSync(tempDir)) fs.rmSync(tempDir, { recursive: true, force: true });
+        if (err.stack) log(err.stack, colors.gray);
+        safeRemove(tempDir);
         process.exit(1);
     }
 }

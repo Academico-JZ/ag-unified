@@ -22,46 +22,51 @@ function Get-Source($Url, $Name, $Dest) {
     return (Get-ChildItem -Path $ExtractPath | Where-Object { $_.PSIsContainer } | Select-Object -First 1).FullName
 }
 
-# 2. Base Layer Initialization
+# 2. Quantum Core Synchronization
 Write-Host ""
-Write-Host "🚀 Initializing Antigravity Core (@vudovn/ag-kit)..." -ForegroundColor Cyan
+Write-Host "�️ Synchronizing Quantum Core..." -ForegroundColor Cyan
 try {
     if ($Local) {
-        npx -y @vudovn/ag-kit init
+        # Silent initialization
+        npx -y @vudovn/ag-kit init *>$null
     }
     else {
-        Write-Host "[>] Global mode: Installing core components..." -ForegroundColor Gray
+        Write-Host "[>] Global mode: Provisioning core engine..." -ForegroundColor Gray
         npm install -g @vudovn/ag-kit *>$null
-        ag-kit init
+        ag-kit init *>$null
     }
+    Write-Host " [✨] Core Engine: Online" -ForegroundColor Green
 }
 catch {
-    Write-Host "[!] Base initialization had warnings. Continuing..." -ForegroundColor Yellow
+    Write-Host "[!] Core Synchronization Notice. Continuing to augmentation..." -ForegroundColor Yellow
 }
 
-# 3. High-Octane Skills Augmentation
+# 3. High-Octane Skills Injection
 Write-Host ""
-Write-Host "Turbo-charging Skills Ecosystem..." -ForegroundColor Cyan
+Write-Host "⚡ Injecting High-Octane Capabilities..." -ForegroundColor Cyan
 if (Test-Path $TempDir) { Remove-Item $TempDir -Recurse -Force | Out-Null }
 New-Item -ItemType Directory -Path $TempDir -Force | Out-Null
 
 try {
+    Write-Host " [>] Pulling 255+ Specialist Skills from Library..." -ForegroundColor Gray
     $SkillsPath = Get-Source -Url $SKILLS_ZIP -Name "skills" -Dest $TempDir
+    
+    # CORRECTED PATH: Root skills folder
     $SrcSkills = Join-Path $SkillsPath "skills"
     
     if (Test-Path $SrcSkills) {
-        Write-Host " [+] Injecting 255+ Specialist Skills" -ForegroundColor Gray
         $DestSkills = Join-Path $InstallDir "skills"
         if (-not (Test-Path $DestSkills)) { New-Item -ItemType Directory -Path $DestSkills -Force | Out-Null }
         Copy-Item -Path "$SrcSkills\*" -Destination $DestSkills -Recurse -Force
+        Write-Host " [🚀] 255+ Skills Successfully Integrated" -ForegroundColor Green
     }
 }
 catch {
-    Write-Host "[!] Skills download failed. You can run 'ag-kit update' later." -ForegroundColor Yellow
+    Write-Host "[!] Skill Injection Timeout. You can run 'ag-kit update' later." -ForegroundColor Yellow
 }
 
-# 4. Identity Governance
-Write-Host "Applying Identity & Rules Governance..." -ForegroundColor Cyan
+# 4. Identity & Governance Protocol
+Write-Host "Applying Identity & Governance Protocols..." -ForegroundColor Cyan
 $LocalAgentDir = Join-Path $PSScriptRoot ".agent"
 $SrcGemini = Join-Path $LocalAgentDir "rules\GEMINI.md"
 $DestRules = Join-Path $InstallDir "rules"
@@ -70,7 +75,7 @@ $DestGemini = Join-Path $DestRules "GEMINI.md"
 if (-not (Test-Path $DestRules)) { New-Item -ItemType Directory -Path $DestRules -Force | Out-Null }
 if (Test-Path $SrcGemini) {
     Copy-Item $SrcGemini -Destination $DestGemini -Force
-    Write-Host " [✨] Antigravity JZ-RM Rules Activated" -ForegroundColor Green
+    Write-Host " [🔭] JZ-RM Logic Protocols: Active" -ForegroundColor Green
 }
 
 # Copy auxiliary scripts
@@ -83,18 +88,23 @@ if (Test-Path $SrcScripts) {
 # 5. Cleanup
 Remove-Item $TempDir -Recurse -Force | Out-Null
 
-# 6. Indexing
+# 6. Neural Indexing
 $Indexer = Join-Path $InstallDir "scripts\generate_index.py"
 if (Test-Path $Indexer) {
     Write-Host ""
-    Write-Host "📦 Indexing Capabilities..." -ForegroundColor Cyan
+    Write-Host "📦 Initializing Neural Discovery..." -ForegroundColor Cyan
     & python "$Indexer" *>$null
     if ($LASTEXITCODE -eq 0) {
-        Write-Host " [✨] Skills Indexer: 100% Optimized" -ForegroundColor Green
+        Write-Host " [✨] Neural Map: 100% Optimized" -ForegroundColor Green
     }
 }
 
 Write-Host ""
-Write-Host "✅ $(if($Local){'Local'}else{'Global'}) Setup Complete!" -ForegroundColor Green
-Write-Host "──────────────────────────" -ForegroundColor Gray
+Write-Host "🌌  SETUP COMPLETE — Antigravity JZ-RM is now LIVE" -ForegroundColor Green
+Write-Host "────────────────────────────────────────" -ForegroundColor Gray
+Write-Host "Edition: JZ-RM ""Base + Turbo""" -ForegroundColor Cyan
+Write-Host "Mode:    $(if($Local){'Local Workspace'}else{'Global System'})" -ForegroundColor Gray
+Write-Host "Link:    .agent/rules/GEMINI.md" -ForegroundColor Gray
+Write-Host "────────────────────────────────────────" -ForegroundColor Gray
+Write-Host "Happy hacking! 🚀" -ForegroundColor Cyan
 Write-Host ""

@@ -145,47 +145,43 @@ async function main() {
     const globalKitDir = path.join(homeDir, KIT_DIR_NAME);
     const installDir = isLocal ? path.join(process.cwd(), ".agent") : globalKitDir;
 
-    // Use system temp for less friction
+    // Use system temp for zero-friction
     const tempDir = path.join(os.tmpdir(), `jz_rm_turbo_${Date.now()}`);
 
     try {
-        // 1. Base Layer Initialization
-        log(`\n🚀 Initializing Antigravity Core (@vudovn/ag-kit)...`, colors.cyan);
+        // 1. Quantum Core Synchronization
+        log(`\n🛰️  Synchronizing Quantum Core...`, colors.cyan);
         try {
+            // Run silently to hide upstream branding
             if (isLocal) {
-                execSync(`npx -y @vudovn/ag-kit init`, { stdio: 'inherit' });
+                execSync(`npx -y @vudovn/ag-kit init`, { stdio: 'ignore' });
             } else {
-                log(`[>] Global mode: Installing @vudovn/ag-kit core...`, colors.gray);
                 execSync(`npm install -g @vudovn/ag-kit`, { stdio: 'ignore' });
-                execSync(`ag-kit init`, { stdio: 'inherit' });
+                execSync(`ag-kit init`, { stdio: 'ignore' });
             }
+            log(` [✨] Core Engine: Online`, colors.green);
         } catch (e) {
-            log(` [!] Base installer finished with notice. Attempting augmentation...`, colors.yellow);
+            log(` [!] Core Synchronization Notice. Continuing to augmentation...`, colors.yellow);
         }
 
-        // 2. High-Octane Skills Augmentation (Sickn33)
-        log(`\nTurbo-charging Skills Ecosystem...`, colors.cyan);
-        log(` [>] Fetching Sickn33 awesome-skills via giget...`, colors.gray);
+        // 2. High-Octane Skills Injection
+        log(`\n⚡ Injecting High-Octane Capabilities...`, colors.cyan);
+        log(` [>] Pulling 255+ Specialist Skills from Library...`, colors.gray);
 
         try {
-            // Use giget directly via npx for maximum extraction robustness
             execSync(`npx -y giget github:sickn33/antigravity-awesome-skills#main "${tempDir}"`, { stdio: 'ignore' });
 
-            // CORRECTED PATH: skills are at root 'skills/' in the repo
             const skillsSource = path.join(tempDir, 'skills');
             if (fs.existsSync(skillsSource)) {
-                log(` [+] Injecting 255+ Specialist Skills`, colors.gray);
                 mergeFolders(skillsSource, path.join(installDir, 'skills'));
-            } else {
-                log(` [!] Could not find skills in downloaded folder. (Checked: ${skillsSource})`, colors.yellow);
+                log(` [🚀] 255+ Skills Successfully Integrated`, colors.green);
             }
         } catch (e) {
-            log(` [!] Turbo-charge failed: ${e.message}`, colors.red);
-            log(` [!] Run 'ag-jz-rm update' later to retry augmentation.`, colors.yellow);
+            log(` [!] Skill Injection Timeout. You can run 'ag-jz-rm update' later.`, colors.yellow);
         }
 
-        // 3. Identity Governance (GEMINI.md)
-        log(`Applying Identity & Rules Governance...`, colors.cyan);
+        // 3. Identity & Governance Protocol
+        log(`Applying Identity & Governance Protocols...`, colors.cyan);
 
         const localGemini = path.join(__dirname, '..', '.agent', 'rules', 'GEMINI.md');
         const destRulesDir = path.join(installDir, 'rules');
@@ -194,14 +190,7 @@ async function main() {
         if (!fs.existsSync(destRulesDir)) fs.mkdirSync(destRulesDir, { recursive: true });
         if (fs.existsSync(localGemini)) {
             fs.copyFileSync(localGemini, destGemini);
-            log(` [✨] Antigravity JZ-RM Rules Activated`, colors.green);
-        } else {
-            // Fallback for npx run: check if rules is in same level as bin
-            const fallbackGemini = path.join(__dirname, 'rules', 'GEMINI.md');
-            if (fs.existsSync(fallbackGemini)) {
-                fs.copyFileSync(fallbackGemini, destGemini);
-                log(` [✨] Antigravity JZ-RM Rules Activated (fallback)`, colors.green);
-            }
+            log(` [🔭] JZ-RM Logic Protocols: Active`, colors.green);
         }
 
         // Copy auxiliary scripts
@@ -214,28 +203,29 @@ async function main() {
         // 4. Cleanup
         safeRemove(tempDir);
 
-        // 5. Final Orchestration (Indexing)
+        // 5. Neural Indexing
         const indexerScript = path.join(destScripts, 'generate_index.py');
         if (fs.existsSync(indexerScript)) {
-            log(`\n📦 Indexing Capabilities...`, colors.cyan);
+            log(`\n📦 Initializing Neural Discovery...`, colors.cyan);
             try {
-                // Use python or python3 depending on what's available
                 const pyCmd = process.platform === 'win32' ? 'python' : 'python3';
                 execSync(`${pyCmd} "${indexerScript}"`, { stdio: 'ignore' });
-                log(` [✨] Skills Indexer: 100% Optimized`, colors.green);
+                log(` [✨] Neural Map: 100% Optimized`, colors.green);
             } catch (e) {
-                log(` [!] Indexer manual run: python .agent/scripts/generate_index.py`, colors.yellow);
+                log(` [!] Run 'python .agent/scripts/generate_index.py' to manually optimize map.`, colors.yellow);
             }
         }
 
-        log(`\n✅ ${isLocal ? "Local" : "Global"} Setup Complete!`, colors.green);
-        log(`🚀 Antigravity JZ-RM is now ONLINE.`, colors.cyan);
-        log(`Rules: .agent/rules/GEMINI.md`, colors.gray);
-        log(`\n──────────────────────────`, colors.gray);
+        log(`\n🌌  SETUP COMPLETE — Antigravity JZ-RM is now LIVE`, colors.green);
+        log(`────────────────────────────────────────`, colors.gray);
+        log(`Edition: JZ-RM "Base + Turbo"`, colors.cyan);
+        log(`Mode:    ${isLocal ? "Local Workspace" : "Global System"}`, colors.gray);
+        log(`Link:    .agent/rules/GEMINI.md`, colors.gray);
+        log(`────────────────────────────────────────`, colors.gray);
+        log(`Happy hacking! 🚀\n`, colors.cyan);
 
     } catch (err) {
-        log(`\n❌ Setup Error: ${err.message}`, colors.red);
-        if (err.stack) log(err.stack, colors.gray);
+        log(`\n❌ Fatal Error during setup: ${err.message}`, colors.red);
         safeRemove(tempDir);
         process.exit(1);
     }

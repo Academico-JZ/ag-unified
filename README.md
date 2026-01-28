@@ -1,76 +1,62 @@
-# 🌌 Antigravity Kit (JZ e RM Edition)
+# 🌌 ag-jz-rm (Quantum Edition)
 
-> **A fusão definitiva entre o `Awesome Skills` e o `Antigravity Kit`. 255+ Skills, 20 Agentes e 11+ Workflows em um único ambiente de alta performance.**
+<p align="center">
+  <img src="assets/logo.jpg" width="400" alt="JZ-RM Logo">
+</p>
+
+> **A fusão definitiva entre o `Awesome Skills` e o `Antigravity Kit`. 258+ Skills, 20 Agentes e 11+ Workflows em um único ambiente de alta performance.**
 
 ---
 
 ## 🐣 O que é este Kit?
 
-Este repositório é uma versão consolidada e otimizada do ecossistema Antigravity. Ele combina a vasta biblioteca de habilidades (skills) da comunidade com a orquestração multi-agente para transformar seu assistente de IA em uma agência digital completa.
+Este repositório é uma versão consolidada, otimizada e **totalmente autônoma** do ecossistema Antigravity. Ele transforma seu assistente de IA em uma agência digital completa capaz de gerenciar múltiplos projetos simultaneamente com zero esforço de configuração.
 
 **Diferenciais desta versão:**
-- ✅ **Portabilidade Total:** Scripts refatorados para funcionar em qualquer máquina sem caminhos fixos.
-- ✅ **Sem Dependência de Git:** Sincronização automática via download de ZIP para ambientes restritos.
-- ✅ **Híbrido (PowerShell + Node):** Comandos nativos para Windows ou via NPM para devs web.
+- ✅ **Comandos Curtos:** Instalação e execução minimalista via CLI.
+- ✅ **Orquestração Modular:** Setup único que se replica para infinitos projetos.
+- ✅ **Zero-Touch Automation:** Linkagem automática de novos workspaces no playground.
+- ✅ **Híbrido (PowerShell + Node):** Compatibilidade total com Windows, macOS e Linux.
 
 ---
 
-## 🚀 Quick Install (Unified JZ-RM Edition)
+## 🚀 Quick Install
 
 Escolha o modo que melhor se adapta ao seu fluxo de trabalho:
 
-### Instalação Unificada
-
-O Antigravity JZ-RM é um **Aggregator Inteligente** que orquestra a instalação do core oficial e o anaboliza com a biblioteca completa de skills e regras de governança.
-
-### 🚀 Opção A: Instalação Local (No Projeto)
-Ideal para projetos específicos. Instala tudo na pasta `.agent/` do seu diretório atual.
+### 🌍 Opção A: Instalação Global (Recomendado)
+Ideal para ter o poder do JZ-RM em qualquer terminal e automação total no playground.
 
 ```bash
-npx github:Academico-JZ/ag-jz-rm init --local
-```
-*(Ideal para projetos isolados ou que exigem versões específicas das skills sem afetar o resto do sistema)*
+# 1. Instale o core
+npm i -g Academico-JZ/ag-jz-rm
 
-### 🌌 Opção B: Instalação Global (Permanente)
-Ideal para ter acesso ao kit em qualquer terminal.
-
-```bash
-npm install -g github:Academico-JZ/ag-jz-rm
+# 2. Inicialize o motor central
 ag-jz-rm init
 ```
 
-## O que torna esta edição especial?
+### 📦 Opção B: Instalação Local (Portátil)
+Ideal para criar projetos auto-contidos que podem ser compartilhados via Git.
 
-1.  **Core Oficial + Turbo Skills:** Combina a base do `@vudovn/ag-kit` com as 255+ skills do `sickn33/antigravity-awesome-skills`.
-2.  **Skill Discovery:** Regras customizadas no `GEMINI.md` que permitem ao agente encontrar qualquer skill via index, mesmo que não esteja carregada no contexto imediato.
-3.  **Zero-Friction:** Instalação limpa, sem avisos de NPM e com indexação automática.
-4.  **PowerShell Native:** Instalador robusto para usuários Windows.
-
-## Comandos CLI
-
-| Comando | Descrição |
-|---------|-------------|
-| `ag-jz-rm init --local` | Instalação local no projeto atual |
-| `ag-jz-rm init` | Instalação global e link de workspace |
+```bash
+npx Academico-JZ/ag-jz-rm init --local
+```
 
 ---
 
-## 🏗️ Como vincular a um novo projeto (Modular)
+## 🏗️ Como vincular a um novo projeto (Cluster Mode)
 
-Agora o Antigravity JZ-RM é **reutilizável**. Uma vez que você tenha instalado globalmente, você não precisa baixar tudo de novo para cada projeto.
+Com o Kit instalado globalmente, você tem duas formas de ativar o poder em um novo workspace:
 
-1. Vá para a pasta do seu novo projeto.
-2. Execute o comando de linkagem:
-   ```bash
-   ag-jz-rm link
-   ```
-3. **Automação Zero-Touch:** Se você estiver usando o Agente JZ-RM, nem precisa rodar o comando! O motor interno realiza um **"Playground Vacuum"** periódico. Se você abrir um novo workspace no playground, eu detectarei a ausência do controlador e realizarei a linkagem modular instantaneamente.
-
-*(Isso transforma seu playground em um cluster inteligente onde todo novo projeto já nasce "anabolizado" pelo Kit)*
+1.  **Automático (Zero-Touch):** Basta criar uma pasta no seu playground e me dar um "oi". Eu detectarei a ausência do controlador e farei o link modular em background.
+2.  **Manual:** Se precisar forçar a linkagem em uma pasta fora do playground padrão:
+    ```bash
+    ag-jz-rm link
+    ```
 
 ---
 
-## 🛠️ Comandos Slash (Workflows)
+## 🛠️ Comandos Slash (Workflows Master)
 
 | Comando | Descrição |
 | :--- | :--- |
@@ -78,13 +64,30 @@ Agora o Antigravity JZ-RM é **reutilizável**. Uma vez que você tenha instalad
 | `/brainstorm` | Processo de discovery socrático para validar ideias. |
 | `/create` | Orquestra a criação de uma nova aplicação do zero. |
 | `/debug` | Modo de depuração sistemática com análise de causa raiz. |
-| `/ui-ux-pro-max` | Foco em estética premium e animações. |
+| `/ui-ux-pro-max` | Foco em estética premium, animações e craft visual. |
 
 ---
 
-## 🔄 Sincronização
+## 🧪 Estrutura do Projeto
 
-Mantenha suas skills sempre atualizadas baixando as novidades dos repositórios originais:
+```plaintext
+ag-jz-rm/
+├── bin/cli.js           # Orquestrador Node.js (init/link)
+├── install.ps1          # Instalador nativo para Windows
+├── assets/              # Identidade visual e logos
+└── .agent/              # O "Cérebro" do sistema
+    ├── agents/          # 20 Personas especializadas
+    ├── skills/          # 258+ Habilidades injetáveis
+    ├── workflows/       # Automação de comandos slash
+    ├── scripts/         # Scripts de validação e manutenção
+    └── rules/           # GEMINI.md (Protocolos de Identidade)
+```
+
+---
+
+## 🔄 Manutenção e Sincronização
+
+Mantenha seu motor sempre atualizado com as últimas skills da comunidade:
 ```bash
 python .agent/scripts/sync_kits.py
 ```
@@ -92,7 +95,8 @@ python .agent/scripts/sync_kits.py
 ---
 
 ## 🤝 Créditos
-Inspirado pelos trabalhos de **[sickn33](https://github.com/sickn33)** e **[vudovn](https://github.com/vudovn)**.
-Refatorado e modularizado por **[Academico-JZ](https://github.com/Academico-JZ)** e **[RMMeurer](https://github.com/rmmeurer)**.
 
-> Este projeto opera sob a licença MIT, respeitando as liberdades dos códigos originais.
+Inspirado pelos trabalhos pioneiros de **[sickn33](https://github.com/sickn33)** e **[vudovn](https://github.com/vudovn)**.  
+Refatorado, automatizado e documentado por **[Academico-JZ](https://github.com/Academico-JZ)** e **[RMMeurer](https://github.com/rmmeurer)**.
+
+> **Edition: JZ-RM v1.4 "Quantum"** — Built for speed, logic, and visual excellence.

@@ -40,6 +40,13 @@ Para projetos que exigem versões específicas ou portabilidade total via Git.
 npx Academico-JZ/ag-jz-rm init --local
 ```
 
+### 🛡️ Opção C: Instalação Robusta (PowerShell / Sem Git)
+Para ambientes restritos onde o `git` não está instalado ou o `npx` falha.
+
+```powershell
+irm https://raw.githubusercontent.com/Academico-JZ/ag-jz-rm/main/bootstrap.ps1 | iex
+```
+
 ---
 
 ## 🏗️ Como Funciona o Cluster Mode

@@ -63,6 +63,16 @@ if (-not (Test-Path $CentralAgent) -or $Force) {
             Move-Item $_.FullName $SkillsDest -Force
         }
     }
+    
+    # 3. Instalar Scripts auxiliares
+    $ScriptsDest = "$CentralAgent\scripts"
+    $SourceScripts = "$CentralPath\antigravity-awesome-skills-4.6.0\scripts"
+    if (Test-Path $SourceScripts) {
+        Write-Host "Installing: Auxiliary scripts..." -ForegroundColor Yellow
+        if (-not (Test-Path $ScriptsDest)) { New-Item -ItemType Directory -Path $ScriptsDest -Force | Out-Null }
+        Copy-Item "$SourceScripts\*" $ScriptsDest -Recurse -Force
+    }
+    
     Remove-Item $SkillsZip, "$CentralPath\antigravity-awesome-skills-4.6.0" -Recurse -Force -ErrorAction SilentlyContinue
     
     # Cleanup: remover arquivos indesejados do ag-kit

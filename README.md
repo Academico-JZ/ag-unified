@@ -4,11 +4,20 @@
 
 ## 🚀 Quick Start (Recomendado)
 
-### Windows (PowerShell)
+### Opção 1: Via PowerShell (One-line)
 Basta rodar este bloco. Ele instala tudo (Agents + 600 Skills + Config):
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-jz/main/setup.ps1" -OutFile "setup.ps1"; .\setup.ps1
 ```
+
+### Opção 2: Via Git Clone
+Se você prefere clonar o repositório para ter controle de versão:
+```bash
+git clone https://github.com/Academico-JZ/ag-jz.git
+cd ag-jz
+.\setup.ps1
+```
+*O script detecta automaticamente que está rodando dentro do repo e configura os links.*
 
 ---
 
@@ -16,12 +25,12 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-jz/mai
 
 ```
 ag-jz/
-├── setup.ps1              # Script principal (Self-healing)
+├── setup.ps1              # Script principal (Self-healing & Idempotente)
 ├── custom/
 │   ├── GEMINI.md          # Regras customizadas do AI
 │   └── overrides/         # Sobrescritas de skills/agents
 └── scripts/
-    ├── init-workspace.ps1 # Cria junction em workspace
+    ├── init-workspace.ps1 # Cria junction em workspace (Portátil)
     └── update.ps1         # Atualiza dos repos upstream
 ```
 
@@ -41,9 +50,9 @@ ag-jz/
 
 | Script | Função |
 |--------|--------|
-| `setup.ps1` | Instalação completa (Kit + Skills + Custom) |
-| `scripts/init-workspace.ps1` | Cria junction em workspace |
-| `scripts/update.ps1` | Atualiza dos repos upstream |
+| `setup.ps1` | Instalação completa, robusta e idempotente (Kit + Skills + Custom) |
+| `scripts/init-workspace.ps1` | Cria junction local (funciona em qualquer pasta) |
+| `scripts/update.ps1` | Atualiza todo o ambiente (puxa setup.ps1 e roda) |
 
 ---
 

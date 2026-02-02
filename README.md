@@ -17,7 +17,10 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-jz/mai
 npm install -g @vudovn/ag-kit
 ag-kit init
 
-# 2. Aplica customizações
+# 2. Instala skills extras (600+)
+npx -y antigravity-awesome-skills
+
+# 3. Aplica customizações
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-jz/main/custom/GEMINI.md" -OutFile ".agent\GEMINI.md"
 ```
 
@@ -38,38 +41,12 @@ ag-jz/
 
 ---
 
-## 🔄 Arquitetura Modular
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    ag-jz (seu repo)                     │
-│  • GEMINI.md customizado                                │
-│  • Scripts de setup                                     │
-│  • Overrides específicos                                │
-└────────────────────────┬────────────────────────────────┘
-                         │ merge
-┌────────────────────────┴────────────────────────────────┐
-│              antigravity-kit (upstream)                 │
-│  • 20 Agents                                            │
-│  • Workflows                                            │
-│  • Scripts base                                         │
-└────────────────────────┬────────────────────────────────┘
-                         │ merge
-┌────────────────────────┴────────────────────────────────┐
-│          antigravity-awesome-skills (upstream)          │
-│  • 36 Skills                                            │
-└─────────────────────────────────────────────────────────┘
-```
-
----
-
 ## 📊 Assets
 
 | Source | Type | Count |
 |--------|------|-------|
 | antigravity-kit | Agents | 20 |
-| antigravity-kit | Workflows | 11 |
-| antigravity-awesome-skills | Skills | 36 |
+| antigravity-awesome-skills | Skills | 600+ |
 | ag-jz | Custom Rules | 1 |
 
 ---
@@ -78,7 +55,7 @@ ag-jz/
 
 | Script | Função |
 |--------|--------|
-| `setup.ps1` | Instalação completa em nova máquina |
+| `setup.ps1` | Instalação completa (Kit + Skills + Custom) |
 | `scripts/init-workspace.ps1` | Cria junction em workspace |
 | `scripts/update.ps1` | Atualiza dos repos upstream |
 

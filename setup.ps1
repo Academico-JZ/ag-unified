@@ -8,7 +8,7 @@ $RepoOwner = "Academico-JZ"
 $RepoName = "ag-unified"
 $Branch = "main"
 
-# LOCALIZACAO CENTRAL DEFINIDA
+# LOCALIZACAO CENTRAL PADRAO
 $CentralPath = "$env:USERPROFILE\.gemini\antigravity"
 $CentralAgent = "$CentralPath\.agent"
 
@@ -16,75 +16,44 @@ Write-Host ""
 Write-Host ">>> AG-UNIFIED: AUTOMATIC SETUP <<<" -ForegroundColor Cyan
 Write-Host ""
 
-# --- LOGICA DE ROTEAMENTO AUTOMATICO ---
+# --- LOGICA DE INSTALACAO AUTOMATICA DA CENTRAL ---
 
-# 1. Verificar se estamos rodando fora da central (MODO WORKSPACE)
-if ($CurrentPath -ne $CentralPath) {
-    Write-Host "[Mode] Workspace Detectado (Linking)..." -ForegroundColor Yellow
-    
-    # Verificar se a central existe
-    if (-not (Test-Path $CentralAgent)) {
-        Write-Host "ERR: Central nao encontrada em $CentralPath" -ForegroundColor Red
-        Write-Host "Por favor, instale primeiro na central usando o comando Quick Start." -ForegroundColor Gray
-        exit 1
-    }
-
-    $TargetAgent = Join-Path $CurrentPath ".agent"
-    
-    # Tratar link existente
-    if (Test-Path $TargetAgent) {
-        if ((Get-Item $TargetAgent).Attributes -band [IO.FileAttributes]::ReparsePoint) {
-            Write-Host "OK: Link (Junction) ja existe neste workspace." -ForegroundColor Green
-            exit 0
-        }
-        Write-Host "WARN: Havia uma pasta .agent real. Removendo para criar o link..." -ForegroundColor Gray
-        Remove-Item $TargetAgent -Recurse -Force
-    }
-
-    # Criar Junction AUTOMATICO
-    Write-Host "Linking: Criando link automatico para a central..." -ForegroundColor Cyan
-    cmd /c mklink /J "$TargetAgent" "$CentralAgent" | Out-Null
-    
-    if (Test-Path $TargetAgent) {
-        Write-Host "OK: Workspace vinculado com sucesso! Acesso a 600+ skills ativo." -ForegroundColor Green
+if (-not (Test-Path $CentralAgent) -or $Force) {
+    if ($CurrentPath -eq $CentralPath) {
+        Write-Host "[Action] Instalando Central no local padrao..." -ForegroundColor Yellow
     } else {
-        Write-Host "ERR: Falha ao criar link. Tente rodar como Administrador." -ForegroundColor Red
+        Write-Host "[Action] Central nao encontrada. Instalando automaticamente em $CentralPath..." -ForegroundColor Yellow
+        if (-not (Test-Path $CentralPath)) { New-Item -ItemType Directory -Path $CentralPath -Force | Out-Null }
     }
-    exit 0
-}
 
-# --- MODO INSTALACAO CENTRAL (Apenas se estiver em $CentralPath) ---
-
-Write-Host "[Mode] Central (Brain Center) Detectado..." -ForegroundColor Yellow
-
-# 1. Instalar ag-kit
-if (-not (Test-Path "$CentralAgent\agents") -or $Force) {
+    # 1. Instalar ag-kit (Base) na Central
     Write-Host "Installing: Base (ag-kit)..." -ForegroundColor Yellow
     try {
         npm install -g @vudovn/ag-kit 2>$null
+        # Temporariamente mudar para a central para inicializar
+        $oldDir = Get-Location
+        Set-Location $CentralPath
         ag-kit init
+        Set-Location $oldDir
     } catch {
         Write-Host "Wait: npm falhou. Baixando via Zip..." -ForegroundColor Gray
-        Invoke-WebRequest "https://github.com/vudovn/antigravity-kit/archive/refs/heads/main.zip" -OutFile "kit.zip"
-        Expand-Archive "kit.zip" -DestinationPath "." -Force
-        if (-not (Test-Path ".agent")) { New-Item -ItemType Directory -Path ".agent" | Out-Null }
-        Copy-Item "antigravity-kit-main\.agent\*" ".agent" -Recurse -Force
-        Remove-Item "kit.zip", "antigravity-kit-main" -Recurse -Force
+        Invoke-WebRequest "https://github.com/vudovn/antigravity-kit/archive/refs/heads/main.zip" -OutFile "$CentralPath\kit.zip"
+        Expand-Archive "$CentralPath\kit.zip" -DestinationPath "$CentralPath" -Force
+        if (-not (Test-Path $CentralAgent)) { New-Item -ItemType Directory -Path $CentralAgent | Out-Null }
+        Copy-Item "$CentralPath\antigravity-kit-main\.agent\*" "$CentralAgent" -Recurse -Force
+        Remove-Item "$CentralPath\kit.zip", "$CentralPath\antigravity-kit-main" -Recurse -Force
     }
-}
 
-# 2. Instalar Skills
-$SkillsDest = "$CentralAgent\skills"
-if (-not (Test-Path $SkillsDest) -or (Get-ChildItem $SkillsDest).Count -lt 50 -or $Force) {
+    # 2. Instalar Skills na Central
+    $SkillsDest = "$CentralAgent\skills"
     Write-Host "Downloading: 600+ Skills..." -ForegroundColor Yellow
-    $SkillsZip = "$CurrentPath\skills.zip"
+    $SkillsZip = "$CentralPath\skills.zip"
     $SkillsUrl = "https://github.com/sickn33/antigravity-awesome-skills/archive/refs/tags/v4.6.0.zip"
     Invoke-WebRequest -Uri $SkillsUrl -OutFile $SkillsZip
-    try { tar -xf $SkillsZip 2>$null } catch { Expand-Archive $SkillsZip -DestinationPath "." -Force }
+    try { tar -xf $SkillsZip -C $CentralPath 2>$null } catch { Expand-Archive $SkillsZip -DestinationPath "$CentralPath" -Force }
     
     if (-not (Test-Path $SkillsDest)) { New-Item -ItemType Directory -Path $SkillsDest -Force | Out-Null }
-    # Fix: Corrected Move-Item command logic
-    $SourceSkills = "$CurrentPath\antigravity-awesome-skills-4.6.0\skills"
+    $SourceSkills = "$CentralPath\antigravity-awesome-skills-4.6.0\skills"
     if (Test-Path $SourceSkills) {
         Get-ChildItem $SourceSkills | ForEach-Object {
             $Dest = Join-Path $SkillsDest $_.Name
@@ -92,20 +61,48 @@ if (-not (Test-Path $SkillsDest) -or (Get-ChildItem $SkillsDest).Count -lt 50 -o
             Move-Item $_.FullName $SkillsDest -Force
         }
     }
-    Remove-Item $SkillsZip, "$CurrentPath\antigravity-awesome-skills-4.6.0" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item $SkillsZip, "$CentralPath\antigravity-awesome-skills-4.6.0" -Recurse -Force -ErrorAction SilentlyContinue
+
+    # 3. GEMINI.md Sync
+    Write-Host "Syncing: GEMINI.md..." -ForegroundColor Yellow
+    $CustomUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch/custom/GEMINI.md"
+    try {
+        Invoke-WebRequest -Uri $CustomUrl -OutFile "$CentralAgent\GEMINI.md"
+        if (-not (Test-Path "$env:USERPROFILE\.gemini")) { New-Item -ItemType Directory -Path "$env:USERPROFILE\.gemini" -Force | Out-Null }
+        Copy-Item "$CentralAgent\GEMINI.md" "$env:USERPROFILE\.gemini\GEMINI.md" -Force
+        Write-Host "OK: Central instalada e configurada." -ForegroundColor Green
+    } catch {
+        Write-Host "WARN: Falha ao baixar GEMINI.md remoto." -ForegroundColor Gray
+    }
 }
 
-# 3. GEMINI.md Sync
-Write-Host "Syncing: GEMINI.md..." -ForegroundColor Yellow
-$CustomUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch/custom/GEMINI.md"
-try {
-    Invoke-WebRequest -Uri $CustomUrl -OutFile "$CentralAgent\GEMINI.md"
-    Copy-Item "$CentralAgent\GEMINI.md" "$env:USERPROFILE\.gemini\GEMINI.md" -Force
-    Write-Host "OK: Configuracoes globais aplicadas." -ForegroundColor Green
-} catch {
-    Write-Host "WARN: Falha ao baixar GEMINI.md remoto. Usando local." -ForegroundColor Gray
-}
+# --- LOGICA DE VINCULACAO (WORKSPACE) ---
 
-Write-Host ""
-Write-Host "!!! CENTRAL BRAIN PRONTA !!!" -ForegroundColor Green
-Write-Host "Agora rode este script dentro de qualquer projeto para vincula-lo." -ForegroundColor Gray
+# Se nao estamos na central, criar o link
+if ($CurrentPath -ne $CentralPath) {
+    Write-Host "[Action] Vinculando esta pasta a Central..." -ForegroundColor Yellow
+    
+    $TargetAgent = Join-Path $CurrentPath ".agent"
+    
+    # Tratar link existente
+    if (Test-Path $TargetAgent) {
+        if ((Get-Item $TargetAgent).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+            Write-Host "OK: Link ja existe." -ForegroundColor Green
+            exit 0
+        }
+        Remove-Item $TargetAgent -Recurse -Force
+    }
+
+    # Criar Junction
+    Write-Host "Linking: Criando atalho para a central..." -ForegroundColor Cyan
+    cmd /c mklink /J "$TargetAgent" "$CentralAgent" | Out-Null
+    
+    if (Test-Path $TargetAgent) {
+        Write-Host "SUCCESS: Workspace pronto! Acesso universal ativo." -ForegroundColor Green
+    } else {
+        Write-Host "ERR: Falha ao criar link. Tente como Admin." -ForegroundColor Red
+    }
+} else {
+    Write-Host ""
+    Write-Host "!!! CENTRAL BRAIN ATUALIZADA !!!" -ForegroundColor Green
+}

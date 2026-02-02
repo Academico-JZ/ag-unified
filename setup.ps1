@@ -54,7 +54,7 @@ if (-not (Test-Path $CentralAgent) -or $Force) {
     if (-not (Test-Path $SkillsDest)) { New-Item -ItemType Directory -Path $SkillsDest -Force | Out-Null }
     $SourceSkills = "$CentralPath\antigravity-awesome-skills-4.6.0\skills"
     if (Test-Path $SourceSkills) {
-        Get-ChildObject $SourceSkills | ForEach-Object {
+        Get-ChildItem $SourceSkills | ForEach-Object {
             $Dest = Join-Path $SkillsDest $_.Name
             if (Test-Path $Dest) { Remove-Item $Dest -Recurse -Force -ErrorAction SilentlyContinue }
             Move-Item $_.FullName $SkillsDest -Force
@@ -103,3 +103,6 @@ if ($CurrentPath -ne $CentralPath) {
     Write-Host ""
     Write-Host "!!! CENTRAL BRAIN CONFIGURADA !!!" -ForegroundColor Green
 }
+
+# AUTO-DELECAO: Remover este script apos o uso para limpar o workspace
+Remove-Item $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue

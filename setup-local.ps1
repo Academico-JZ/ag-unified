@@ -79,3 +79,6 @@ try {
 Write-Host ""
 Write-Host "SUCCESS: Workspace isolado configurado com sucesso!" -ForegroundColor Green
 Write-Host "Este projeto NAO depende da pasta central." -ForegroundColor Gray
+
+# AUTO-DELECAO: Remover este script apos o uso para limpar o workspace
+Remove-Item $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue

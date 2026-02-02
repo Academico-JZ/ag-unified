@@ -1,4 +1,4 @@
-# AG-JZ - Antigravity Kit Modular
+# AG-UNIFIED - Antigravity Kit Modular
 
 > Arquitetura agêntica modular que combina [antigravity-kit](https://github.com/vudovn/antigravity-kit) + [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills) com customizações próprias.
 
@@ -7,24 +7,24 @@
 ### Opção 1: Via PowerShell (One-line)
 Basta rodar este bloco. Ele instala tudo (Agents + 600 Skills + Config):
 ```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-jz/main/setup.ps1" -OutFile "setup.ps1"; .\setup.ps1
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-unified/main/setup.ps1" -OutFile "setup.ps1"; .\setup.ps1
 ```
 
 ### Opção 2: Via Git Clone
 Se você prefere clonar o repositório para ter controle de versão:
 ```bash
-git clone https://github.com/Academico-JZ/ag-jz.git
-cd ag-jz
+git clone https://github.com/Academico-JZ/ag-unified.git
+cd ag-unified
 .\setup.ps1
 ```
 *O script detecta automaticamente que está rodando dentro do repo e configura os links.*
 
----
+---\
 
 ## 📁 Estrutura
 
 ```
-ag-jz/
+ag-unified/
 ├── setup.ps1              # Script principal (Self-healing & Idempotente)
 ├── custom/
 │   ├── GEMINI.md          # Regras customizadas do AI
@@ -42,7 +42,7 @@ ag-jz/
 |--------|------|-------|
 | antigravity-kit | Agents | 20 |
 | antigravity-awesome-skills | Skills | 600+ |
-| ag-jz | Custom Rules | 1 |
+| ag-unified | Custom Rules | 1 |
 
 ---
 

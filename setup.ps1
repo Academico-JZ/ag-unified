@@ -8,22 +8,24 @@ $RepoOwner = "Academico-JZ"
 $RepoName = "ag-unified"
 $Branch = "main"
 
-# LOCALIZAÇÃO CENTRAL DEFINIDA
+# LOCALIZACAO CENTRAL DEFINIDA
 $CentralPath = "$env:USERPROFILE\.gemini\antigravity"
 $CentralAgent = "$CentralPath\.agent"
 
-Write-Host "`n🚀 AG-UNIFIED: AUTOMATIC SETUP" -ForegroundColor Cyan
+Write-Host ""
+Write-Host ">>> AG-UNIFIED: AUTOMATIC SETUP <<<" -ForegroundColor Cyan
+Write-Host ""
 
-# --- LÓGICA DE ROTEAMENTO AUTOMÁTICO ---
+# --- LOGICA DE ROTEAMENTO AUTOMATICO ---
 
 # 1. Verificar se estamos rodando fora da central (MODO WORKSPACE)
 if ($CurrentPath -ne $CentralPath) {
-    Write-Host "📂 Modo Workspace Detectado (Linking)..." -ForegroundColor Yellow
+    Write-Host "[Mode] Workspace Detectado (Linking)..." -ForegroundColor Yellow
     
     # Verificar se a central existe
     if (-not (Test-Path $CentralAgent)) {
-        Write-Host "❌ Erro: Central não encontrada em $CentralPath" -ForegroundColor Red
-        Write-Host "   Por favor, instale primeiro na central usando o comando Quick Start do README." -ForegroundColor Gray
+        Write-Host "ERR: Central nao encontrada em $CentralPath" -ForegroundColor Red
+        Write-Host "Por favor, instale primeiro na central usando o comando Quick Start." -ForegroundColor Gray
         exit 1
     }
 
@@ -32,36 +34,37 @@ if ($CurrentPath -ne $CentralPath) {
     # Tratar link existente
     if (Test-Path $TargetAgent) {
         if ((Get-Item $TargetAgent).Attributes -band [IO.FileAttributes]::ReparsePoint) {
-            Write-Host "✅ Link (Junction) já existe neste workspace." -ForegroundColor Green
+            Write-Host "OK: Link (Junction) ja existe neste workspace." -ForegroundColor Green
             exit 0
         }
-        Write-Host "⚠️  Havia uma pasta .agent real. Removendo para criar o link..." -ForegroundColor Gray
+        Write-Host "WARN: Havia uma pasta .agent real. Removendo para criar o link..." -ForegroundColor Gray
         Remove-Item $TargetAgent -Recurse -Force
     }
 
-    # Criar Junction AUTOMÁTICO
-    Write-Host "🔗 Criando link automático para a central..." -ForegroundColor Cyan
+    # Criar Junction AUTOMATICO
+    Write-Host "Linking: Criando link automatico para a central..." -ForegroundColor Cyan
     cmd /c mklink /J "$TargetAgent" "$CentralAgent" | Out-Null
     
     if (Test-Path $TargetAgent) {
-        Write-Host "✅ Workspace vinculado com sucesso! O AI agora tem acesso a 600+ skills." -ForegroundColor Green
+        Write-Host "OK: Workspace vinculado com sucesso! Acesso a 600+ skills ativo." -ForegroundColor Green
     } else {
-        Write-Host "❌ Falha ao criar link. Tente rodar como Administrador." -ForegroundColor Red
+        Write-Host "ERR: Falha ao criar link. Tente rodar como Administrador." -ForegroundColor Red
     }
     exit 0
 }
 
-# --- MODO INSTALAÇÃO CENTRAL (Apenas se estiver em $CentralPath) ---
+# --- MODO INSTALACAO CENTRAL (Apenas se estiver em $CentralPath) ---
 
-Write-Host "🧠 Modo Central (Brain Center) Detectado..." -ForegroundColor Yellow
+Write-Host "[Mode] Central (Brain Center) Detectado..." -ForegroundColor Yellow
 
 # 1. Instalar ag-kit
 if (-not (Test-Path "$CentralAgent\agents") -or $Force) {
-    Write-Host "📦 Instalando Base..." -ForegroundColor Yellow
+    Write-Host "Installing: Base (ag-kit)..." -ForegroundColor Yellow
     try {
         npm install -g @vudovn/ag-kit 2>$null
         ag-kit init
     } catch {
+        Write-Host "Wait: npm falhou. Baixando via Zip..." -ForegroundColor Gray
         Invoke-WebRequest "https://github.com/vudovn/antigravity-kit/archive/refs/heads/main.zip" -OutFile "kit.zip"
         Expand-Archive "kit.zip" -DestinationPath "." -Force
         if (-not (Test-Path ".agent")) { New-Item -ItemType Directory -Path ".agent" | Out-Null }
@@ -73,27 +76,36 @@ if (-not (Test-Path "$CentralAgent\agents") -or $Force) {
 # 2. Instalar Skills
 $SkillsDest = "$CentralAgent\skills"
 if (-not (Test-Path $SkillsDest) -or (Get-ChildItem $SkillsDest).Count -lt 50 -or $Force) {
-    Write-Host "⚡ Baixando 600+ Skills..." -ForegroundColor Yellow
+    Write-Host "Downloading: 600+ Skills..." -ForegroundColor Yellow
     $SkillsZip = "$CurrentPath\skills.zip"
     $SkillsUrl = "https://github.com/sickn33/antigravity-awesome-skills/archive/refs/tags/v4.6.0.zip"
     Invoke-WebRequest -Uri $SkillsUrl -OutFile $SkillsZip
     try { tar -xf $SkillsZip 2>$null } catch { Expand-Archive $SkillsZip -DestinationPath "." -Force }
     
     if (-not (Test-Path $SkillsDest)) { New-Item -ItemType Directory -Path $SkillsDest -Force | Out-Null }
-    Get-ChildItem "$CurrentPath\antigravity-awesome-skills-4.6.0\skills" | Move-Item -Destination $SkillsDest -Force
+    # Fix: Corrected Move-Item command logic
+    $SourceSkills = "$CurrentPath\antigravity-awesome-skills-4.6.0\skills"
+    if (Test-Path $SourceSkills) {
+        Get-ChildItem $SourceSkills | ForEach-Object {
+            $Dest = Join-Path $SkillsDest $_.Name
+            if (Test-Path $Dest) { Remove-Item $Dest -Recurse -Force -ErrorAction SilentlyContinue }
+            Move-Item $_.FullName $SkillsDest -Force
+        }
+    }
     Remove-Item $SkillsZip, "$CurrentPath\antigravity-awesome-skills-4.6.0" -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 # 3. GEMINI.md Sync
-Write-Host "🛠️ Sincronizando GEMINI.md..." -ForegroundColor Yellow
+Write-Host "Syncing: GEMINI.md..." -ForegroundColor Yellow
 $CustomUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch/custom/GEMINI.md"
 try {
     Invoke-WebRequest -Uri $CustomUrl -OutFile "$CentralAgent\GEMINI.md"
     Copy-Item "$CentralAgent\GEMINI.md" "$env:USERPROFILE\.gemini\GEMINI.md" -Force
-    Write-Host "✅ Configurações aplicadas globalmente." -ForegroundColor Green
+    Write-Host "OK: Configuracoes globais aplicadas." -ForegroundColor Green
 } catch {
-    Write-Host "⚠️  Falha ao baixar GEMINI.md remoto. Usando local." -ForegroundColor Gray
+    Write-Host "WARN: Falha ao baixar GEMINI.md remoto. Usando local." -ForegroundColor Gray
 }
 
-Write-Host "`n✨ CENTRAL BRAIN PRONTA! 🎉" -ForegroundColor Green
-Write-Host "Agora rode este script dentro de qualquer projeto para vinculá-lo dinamicamente." -ForegroundColor Gray
+Write-Host ""
+Write-Host "!!! CENTRAL BRAIN PRONTA !!!" -ForegroundColor Green
+Write-Host "Agora rode este script dentro de qualquer projeto para vincula-lo." -ForegroundColor Gray

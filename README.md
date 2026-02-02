@@ -2,23 +2,49 @@
 
 > Arquitetura agentica modular que combina [antigravity-kit](https://github.com/vudovn/antigravity-kit) + [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills) com customizacoes proprias.
 
-## Quick Start
+---
 
-### Opcao 1: Central (Recomendado)
-Instala na central e cria links nos projetos. Compartilha skills entre todos os workspaces:
+## Modos de Instalacao
+
+### Global (Recomendado)
+
+Instala o "cerebro central" em `%USERPROFILE%\.gemini\antigravity\.agent` e cria **links simbolicos** nos workspaces. Todos os projetos compartilham a mesma instalacao, economizando espaco e facilitando atualizacoes.
+
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-unified/main/setup.ps1" -OutFile "setup.ps1"; .\setup.ps1
 ```
-*O script se auto-deleta apos a instalacao.*
 
-### Opcao 2: Standalone (Isolado)
-Instala tudo localmente, sem dependencia da central:
+**Como funciona:**
+- Primeira execucao: instala tudo na pasta central
+- Execucoes seguintes (em outros projetos): cria apenas o link `.agent` -> central
+- O script se auto-deleta apos uso
+
+**Vantagens:**
+- Atualize uma vez, todos os projetos recebem
+- Menos espaco em disco
+- Consistencia entre workspaces
+
+---
+
+### Local (Standalone)
+
+Instala tudo **diretamente no workspace atual**. A pasta `.agent` do projeto e completamente independente, sem links para a central.
+
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-unified/main/setup-local.ps1" -OutFile "setup-local.ps1"; .\setup-local.ps1
 ```
-*Util para projetos que precisam de autonomia total.*
 
-### Opcao 3: Via Git Clone
+**Quando usar:**
+- Projetos que precisam de isolamento total
+- Ambientes onde links simbolicos nao funcionam bem
+- Experimentacao sem afetar outros projetos
+
+---
+
+### Via Git Clone
+
+Se voce prefere clonar o repositorio para ter controle de versao:
+
 ```bash
 git clone https://github.com/Academico-JZ/ag-unified.git
 cd ag-unified
@@ -31,8 +57,8 @@ cd ag-unified
 
 ```
 ag-unified/
-|-- setup.ps1              # Instalacao Central (Universal, Auto-Delete)
-|-- setup-local.ps1        # Instalacao Local (Standalone, Auto-Delete)
+|-- setup.ps1              # Instalacao Global (cria central + links)
+|-- setup-local.ps1        # Instalacao Local (standalone)
 |-- custom/
 |   |-- GEMINI.md          # Regras customizadas do AI
 |   |-- overrides/         # Sobrescritas de skills/agents
@@ -42,7 +68,7 @@ ag-unified/
 
 ---
 
-## Assets
+## Assets Incluidos
 
 | Source | Type | Count |
 |--------|------|-------|

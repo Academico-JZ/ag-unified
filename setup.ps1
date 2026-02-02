@@ -30,7 +30,6 @@ if (-not (Test-Path $CentralAgent) -or $Force) {
     Write-Host "Installing: Base (ag-kit)..." -ForegroundColor Yellow
     try {
         npm install -g @vudovn/ag-kit 2>$null
-        # Temporariamente mudar para a central para inicializar
         $oldDir = Get-Location
         Set-Location $CentralPath
         ag-kit init
@@ -55,36 +54,42 @@ if (-not (Test-Path $CentralAgent) -or $Force) {
     if (-not (Test-Path $SkillsDest)) { New-Item -ItemType Directory -Path $SkillsDest -Force | Out-Null }
     $SourceSkills = "$CentralPath\antigravity-awesome-skills-4.6.0\skills"
     if (Test-Path $SourceSkills) {
-        Get-ChildItem $SourceSkills | ForEach-Object {
+        Get-ChildObject $SourceSkills | ForEach-Object {
             $Dest = Join-Path $SkillsDest $_.Name
             if (Test-Path $Dest) { Remove-Item $Dest -Recurse -Force -ErrorAction SilentlyContinue }
             Move-Item $_.FullName $SkillsDest -Force
         }
     }
     Remove-Item $SkillsZip, "$CentralPath\antigravity-awesome-skills-4.6.0" -Recurse -Force -ErrorAction SilentlyContinue
+}
 
-    # 3. GEMINI.md Sync
-    Write-Host "Syncing: GEMINI.md..." -ForegroundColor Yellow
-    $CustomUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch/custom/GEMINI.md"
-    try {
-        Invoke-WebRequest -Uri $CustomUrl -OutFile "$CentralAgent\GEMINI.md"
-        if (-not (Test-Path "$env:USERPROFILE\.gemini")) { New-Item -ItemType Directory -Path "$env:USERPROFILE\.gemini" -Force | Out-Null }
-        Copy-Item "$CentralAgent\GEMINI.md" "$env:USERPROFILE\.gemini\GEMINI.md" -Force
-        Write-Host "OK: Central instalada e configurada." -ForegroundColor Green
-    } catch {
-        Write-Host "WARN: Falha ao baixar GEMINI.md remoto." -ForegroundColor Gray
-    }
+# 3. GEMINI.md Sync (Local correto: .agent/rules/GEMINI.md)
+Write-Host "Syncing: GEMINI.md..." -ForegroundColor Yellow
+$RuleFile = "$CentralAgent\rules\GEMINI.md"
+if (-not (Test-Path (Split-Path $RuleFile))) { New-Item -ItemType Directory -Path (Split-Path $RuleFile) -Force | Out-Null }
+
+$CustomUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch/custom/GEMINI.md"
+try {
+    Invoke-WebRequest -Uri $CustomUrl -OutFile $RuleFile
+    
+    # Copiar para a raiz do .agent também por precaução e redundância
+    Copy-Item $RuleFile "$CentralAgent\GEMINI.md" -Force
+    
+    # Atualizar o GEMINI.md global na home do usuário
+    if (-not (Test-Path "$env:USERPROFILE\.gemini")) { New-Item -ItemType Directory -Path "$env:USERPROFILE\.gemini" -Force | Out-Null }
+    Copy-Item $RuleFile "$env:USERPROFILE\.gemini\GEMINI.md" -Force
+    
+    Write-Host "OK: Regras ativas em .agent/rules e globalmente." -ForegroundColor Green
+} catch {
+    Write-Host "WARN: Falha ao atualizar GEMINI.md remoto." -ForegroundColor Gray
 }
 
 # --- LOGICA DE VINCULACAO (WORKSPACE) ---
 
-# Se nao estamos na central, criar o link
 if ($CurrentPath -ne $CentralPath) {
     Write-Host "[Action] Vinculando esta pasta a Central..." -ForegroundColor Yellow
-    
     $TargetAgent = Join-Path $CurrentPath ".agent"
     
-    # Tratar link existente
     if (Test-Path $TargetAgent) {
         if ((Get-Item $TargetAgent).Attributes -band [IO.FileAttributes]::ReparsePoint) {
             Write-Host "OK: Link ja existe." -ForegroundColor Green
@@ -92,17 +97,9 @@ if ($CurrentPath -ne $CentralPath) {
         }
         Remove-Item $TargetAgent -Recurse -Force
     }
-
-    # Criar Junction
-    Write-Host "Linking: Criando atalho para a central..." -ForegroundColor Cyan
     cmd /c mklink /J "$TargetAgent" "$CentralAgent" | Out-Null
-    
-    if (Test-Path $TargetAgent) {
-        Write-Host "SUCCESS: Workspace pronto! Acesso universal ativo." -ForegroundColor Green
-    } else {
-        Write-Host "ERR: Falha ao criar link. Tente como Admin." -ForegroundColor Red
-    }
+    if (Test-Path $TargetAgent) { Write-Host "SUCCESS: Workspace pronto!" -ForegroundColor Green }
 } else {
     Write-Host ""
-    Write-Host "!!! CENTRAL BRAIN ATUALIZADA !!!" -ForegroundColor Green
+    Write-Host "!!! CENTRAL BRAIN CONFIGURADA !!!" -ForegroundColor Green
 }

@@ -11,7 +11,8 @@ if (-not (Test-Path "$InstallPath\.agent\agents")) {
     try {
         npm install -g @vudovn/ag-kit 2>$null
         ag-kit init
-    } catch {
+    }
+    catch {
         Write-Host "   ⚠️ npm falhou/indisponível. Baixando ag-kit manualmente..." -ForegroundColor Gray
         Invoke-WebRequest "https://github.com/vudovn/antigravity-kit/archive/refs/heads/main.zip" -OutFile "kit.zip"
         Expand-Archive "kit.zip" -DestinationPath "." -Force
@@ -35,7 +36,8 @@ Write-Host "📂 Extraindo..." -ForegroundColor Yellow
 # Usar tar se disponível (mais rápido/robusto)
 try {
     tar -xf $SkillsZip 2>$null
-} catch {
+}
+catch {
     Expand-Archive $SkillsZip -DestinationPath "." -Force
 }
 
@@ -56,9 +58,15 @@ Remove-Item $SkillsZip, "$InstallPath\antigravity-awesome-skills-4.6.0" -Recurse
 Write-Host "✅ Skills instaladas: $((Get-ChildItem $SkillsDest).Count)" -ForegroundColor Green
 
 # 3. Aplicar Customização
-Write-Host "🛠️ Aplicando GEMINI.md..." -ForegroundColor Yellow
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-jz/main/custom/GEMINI.md" -OutFile "$InstallPath\.agent\GEMINI.md"
-Write-Host "✅ Customização concluída." -ForegroundColor Green
+Write-Host "🛠️ Aplicando GEMINI.md customizado..." -ForegroundColor Yellow
+$CustomGeminiUrl = "https://raw.githubusercontent.com/Academico-JZ/ag-jz/main/custom/GEMINI.md"
+# Local .agent
+Invoke-WebRequest -Uri $CustomGeminiUrl -OutFile "$InstallPath\.agent\GEMINI.md"
+# Global User Profile (Essencial para substituir o padrão)
+$GlobalGemini = "$env:USERPROFILE\.gemini\GEMINI.md"
+Write-Host "   Sobreescrevendo GEMINI.md GLOBAL: $GlobalGemini" -ForegroundColor Yellow
+Invoke-WebRequest -Uri $CustomGeminiUrl -OutFile $GlobalGemini
+Write-Host "✅ Customização concluída (Local + Global)." -ForegroundColor Green
 
 # 4. Gerar Script de Inicialização (Self-contained)
 Write-Host "🔌 Gerando script de workspace..." -ForegroundColor Yellow

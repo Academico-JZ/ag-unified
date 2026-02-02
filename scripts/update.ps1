@@ -1,41 +1,27 @@
-# Updates from upstream repos
-# Run periodically to get latest agents/skills
+# Updates the environment by fetching and running the latest setup.ps1
+# Usage: .\scripts\update.ps1
 
-param(
-    [string]$AgentPath = "$env:USERPROFILE\.gemini\antigravity\.agent"
-)
-
+$ErrorActionPreference = "Stop"
 Write-Host "`n╔══════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║        AG-JZ UPDATE                  ║" -ForegroundColor Cyan
+Write-Host "║        AG-JZ UPDATE SYSTEM           ║" -ForegroundColor Cyan
 Write-Host "╚══════════════════════════════════════╝`n" -ForegroundColor Cyan
 
-# Backup custom GEMINI.md
-$GeminiBackup = "$AgentPath\GEMINI.md.backup"
-if (Test-Path "$AgentPath\GEMINI.md") {
-    Copy-Item "$AgentPath\GEMINI.md" $GeminiBackup -Force
-    Write-Host "📦 Backed up GEMINI.md" -ForegroundColor Gray
-}
+# Determine root (parent of 'scripts')
+$RepoRoot = Resolve-Path "$PSScriptRoot\.." | Select-Object -ExpandProperty Path
+Set-Location $RepoRoot
 
-# Update ag-kit
-Write-Host "[1/2] Updating ag-kit..." -ForegroundColor Yellow
+Write-Host "🔄 Fetching latest setup.ps1..." -ForegroundColor Yellow
+$SetupUrl = "https://raw.githubusercontent.com/Academico-JZ/ag-jz/main/setup.ps1"
 try {
-    npm update -g @vudovn/ag-kit
-    Set-Location (Split-Path $AgentPath -Parent)
-    ag-kit init
+    Invoke-WebRequest -Uri $SetupUrl -OutFile "setup.ps1"
+    Write-Host "✅ Setup script updated." -ForegroundColor Green
 } catch {
-    Write-Host "   ⚠️ npm update failed, using existing" -ForegroundColor Yellow
+    Write-Host "❌ Failed to download setup.ps1. Check internet." -ForegroundColor Red
+    exit 1
 }
 
-# Restore custom GEMINI.md
-if (Test-Path $GeminiBackup) {
-    Copy-Item $GeminiBackup "$AgentPath\GEMINI.md" -Force
-    Remove-Item $GeminiBackup -Force
-    Write-Host "📦 Restored custom GEMINI.md" -ForegroundColor Gray
-}
+Write-Host "🚀 Running setup to apply updates..." -ForegroundColor Cyan
+# Run setup (it is idempotent/safe)
+& ".\setup.ps1"
 
-# Pull latest customizations from ag-jz
-Write-Host "[2/2] Updating AG-JZ customizations..." -ForegroundColor Yellow
-$CustomUrl = "https://raw.githubusercontent.com/Academico-JZ/ag-jz/main/custom/GEMINI.md"
-Invoke-WebRequest -Uri $CustomUrl -OutFile "$AgentPath\GEMINI.md" -ErrorAction SilentlyContinue
-
-Write-Host "`n✅ Update complete!" -ForegroundColor Green
+Write-Host "`n✨ Update Complete! Environment is synced with main branch.`n" -ForegroundColor Green

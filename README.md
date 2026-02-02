@@ -2,26 +2,12 @@
 
 > Arquitetura agêntica modular que combina [antigravity-kit](https://github.com/vudovn/antigravity-kit) + [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills) com customizações próprias.
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Recomendado)
 
 ### Windows (PowerShell)
+Basta rodar este bloco. Ele instala tudo (Agents + 600 Skills + Config):
 ```powershell
-# Download e executa setup
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-jz/main/setup.ps1" -OutFile "setup.ps1"
-.\setup.ps1
-```
-
-### Manual
-```powershell
-# 1. Instala ag-kit base
-npm install -g @vudovn/ag-kit
-ag-kit init
-
-# 2. Instala skills extras (600+)
-npx -y antigravity-awesome-skills
-
-# 3. Aplica customizações
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-jz/main/custom/GEMINI.md" -OutFile ".agent\GEMINI.md"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-jz/main/setup.ps1" -OutFile "setup.ps1"; .\setup.ps1
 ```
 
 ---
@@ -30,7 +16,7 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-jz/mai
 
 ```
 ag-jz/
-├── setup.ps1              # Script de instalação modular
+├── setup.ps1              # Script principal (Self-healing)
 ├── custom/
 │   ├── GEMINI.md          # Regras customizadas do AI
 │   └── overrides/         # Sobrescritas de skills/agents

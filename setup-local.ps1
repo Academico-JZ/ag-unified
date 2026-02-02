@@ -62,6 +62,10 @@ if (-not (Test-Path $SkillsDest) -or (Get-ChildItem $SkillsDest -ErrorAction Sil
         }
     }
     Remove-Item $SkillsZip, "$CurrentPath\antigravity-awesome-skills-4.6.0" -Recurse -Force -ErrorAction SilentlyContinue
+    
+    # Cleanup: remover arquivos indesejados do ag-kit
+    Remove-Item "$LocalAgent\mcp_config.json" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$LocalAgent\GEMINI.md" -Force -ErrorAction SilentlyContinue
 }
 
 # 3. GEMINI.md Sync (Local correto: .agent/rules/GEMINI.md)
@@ -72,7 +76,6 @@ if (-not (Test-Path (Split-Path $RuleFile))) { New-Item -ItemType Directory -Pat
 $CustomUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch/custom/GEMINI.md"
 try {
     Invoke-WebRequest -Uri $CustomUrl -OutFile $RuleFile
-    Copy-Item $RuleFile "$LocalAgent\GEMINI.md" -Force
     Write-Host "OK: Regras locais configuradas." -ForegroundColor Green
 } catch {
     Write-Host "WARN: Falha ao baixar GEMINI.md remoto." -ForegroundColor Gray

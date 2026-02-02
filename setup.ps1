@@ -64,6 +64,10 @@ if (-not (Test-Path $CentralAgent) -or $Force) {
         }
     }
     Remove-Item $SkillsZip, "$CentralPath\antigravity-awesome-skills-4.6.0" -Recurse -Force -ErrorAction SilentlyContinue
+    
+    # Cleanup: remover arquivos indesejados do ag-kit
+    Remove-Item "$CentralAgent\mcp_config.json" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$CentralAgent\GEMINI.md" -Force -ErrorAction SilentlyContinue
 }
 
 # 3. GEMINI.md Sync (Local correto: .agent/rules/GEMINI.md)
@@ -74,7 +78,6 @@ if (-not (Test-Path (Split-Path $RuleFile))) { New-Item -ItemType Directory -Pat
 $CustomUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch/custom/GEMINI.md"
 try {
     Invoke-WebRequest -Uri $CustomUrl -OutFile $RuleFile
-    Copy-Item $RuleFile "$CentralAgent\GEMINI.md" -Force
     if (-not (Test-Path "$env:USERPROFILE\.gemini")) { New-Item -ItemType Directory -Path "$env:USERPROFILE\.gemini" -Force | Out-Null }
     Copy-Item $RuleFile "$env:USERPROFILE\.gemini\GEMINI.md" -Force
     Write-Host "OK: Regras ativas em .agent/rules e globalmente." -ForegroundColor Green

@@ -3,10 +3,13 @@
 param([switch]$Force)
 
 $ErrorActionPreference = "Stop"
-$CurrentPath = $PSScriptRoot
 $RepoOwner = "Academico-JZ"
 $RepoName = "ag-unified"
 $Branch = "main"
+
+# DETECTAR DIRETORIO ATUAL (Fallback para PWD se PSScriptRoot vazio)
+$CurrentPath = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+$ScriptFile = Join-Path $CurrentPath "setup.ps1"
 
 # LOCALIZACAO CENTRAL PADRAO
 $CentralPath = "$env:USERPROFILE\.gemini\antigravity"
@@ -71,14 +74,9 @@ if (-not (Test-Path (Split-Path $RuleFile))) { New-Item -ItemType Directory -Pat
 $CustomUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Branch/custom/GEMINI.md"
 try {
     Invoke-WebRequest -Uri $CustomUrl -OutFile $RuleFile
-    
-    # Copiar para a raiz do .agent também por precaução e redundância
     Copy-Item $RuleFile "$CentralAgent\GEMINI.md" -Force
-    
-    # Atualizar o GEMINI.md global na home do usuário
     if (-not (Test-Path "$env:USERPROFILE\.gemini")) { New-Item -ItemType Directory -Path "$env:USERPROFILE\.gemini" -Force | Out-Null }
     Copy-Item $RuleFile "$env:USERPROFILE\.gemini\GEMINI.md" -Force
-    
     Write-Host "OK: Regras ativas em .agent/rules e globalmente." -ForegroundColor Green
 } catch {
     Write-Host "WARN: Falha ao atualizar GEMINI.md remoto." -ForegroundColor Gray
@@ -93,16 +91,20 @@ if ($CurrentPath -ne $CentralPath) {
     if (Test-Path $TargetAgent) {
         if ((Get-Item $TargetAgent).Attributes -band [IO.FileAttributes]::ReparsePoint) {
             Write-Host "OK: Link ja existe." -ForegroundColor Green
-            exit 0
+        } else {
+            Remove-Item $TargetAgent -Recurse -Force
         }
-        Remove-Item $TargetAgent -Recurse -Force
     }
-    cmd /c mklink /J "$TargetAgent" "$CentralAgent" | Out-Null
-    if (Test-Path $TargetAgent) { Write-Host "SUCCESS: Workspace pronto!" -ForegroundColor Green }
+    
+    if (-not (Test-Path $TargetAgent)) {
+        cmd /c mklink /J "$TargetAgent" "$CentralAgent" | Out-Null
+        if (Test-Path $TargetAgent) { Write-Host "SUCCESS: Workspace pronto!" -ForegroundColor Green }
+        else { Write-Host "ERR: Falha ao criar link. Tente como Admin." -ForegroundColor Red }
+    }
 } else {
     Write-Host ""
     Write-Host "!!! CENTRAL BRAIN CONFIGURADA !!!" -ForegroundColor Green
 }
 
 # AUTO-DELECAO: Remover este script apos o uso para limpar o workspace
-Remove-Item $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue
+if (Test-Path $ScriptFile) { Remove-Item $ScriptFile -Force -ErrorAction SilentlyContinue }

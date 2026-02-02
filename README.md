@@ -2,22 +2,28 @@
 
 > Arquitetura agentica modular que combina [antigravity-kit](https://github.com/vudovn/antigravity-kit) + [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills) com customizacoes proprias.
 
-## Quick Start (Recomendado)
+## Quick Start
 
-### Opcao 1: Via PowerShell (One-line)
-Basta rodar este bloco. Ele instala tudo (Agents + 600 Skills + Config) e cria links automaticamente em novos workspaces:
+### Opcao 1: Central (Recomendado)
+Instala na central e cria links nos projetos. Compartilha skills entre todos os workspaces:
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-unified/main/setup.ps1" -OutFile "setup.ps1"; .\setup.ps1
 ```
+*O script se auto-deleta apos a instalacao.*
 
-### Opcao 2: Via Git Clone
-Se voce prefere clonar o repositorio para ter controle de versao:
+### Opcao 2: Standalone (Isolado)
+Instala tudo localmente, sem dependencia da central:
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Academico-JZ/ag-unified/main/setup-local.ps1" -OutFile "setup-local.ps1"; .\setup-local.ps1
+```
+*Util para projetos que precisam de autonomia total.*
+
+### Opcao 3: Via Git Clone
 ```bash
 git clone https://github.com/Academico-JZ/ag-unified.git
 cd ag-unified
 .\setup.ps1
 ```
-*O script detecta automaticamente se deve instalar o nucleo central ou apenas vincular a pasta atual.*
 
 ---
 
@@ -25,13 +31,13 @@ cd ag-unified
 
 ```
 ag-unified/
-├── setup.ps1              # Script principal (Universal, Idempotente, Sem Emojis)
-├── custom/
-│   ├── GEMINI.md          # Regras customizadas do AI
-│   └── overrides/         # Sobrescritas de skills/agents
-└── scripts/
-    ├── init-workspace.ps1 # Legado (O setup.ps1 ja faz isso agora)
-    └── update.ps1         # Atualiza todo o ambiente
+|-- setup.ps1              # Instalacao Central (Universal, Auto-Delete)
+|-- setup-local.ps1        # Instalacao Local (Standalone, Auto-Delete)
+|-- custom/
+|   |-- GEMINI.md          # Regras customizadas do AI
+|   |-- overrides/         # Sobrescritas de skills/agents
+|-- scripts/
+    |-- update.ps1         # Atualiza todo o ambiente
 ```
 
 ---

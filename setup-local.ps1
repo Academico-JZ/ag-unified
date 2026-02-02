@@ -3,12 +3,13 @@
 param([switch]$Force)
 
 $ErrorActionPreference = "Stop"
-$CurrentPath = $PSScriptRoot
 $RepoOwner = "Academico-JZ"
 $RepoName = "ag-unified"
 $Branch = "main"
 
-# LOCALIZACAO DEFINIDA COMO O DIRETORIO ATUAL
+# DETECTAR DIRETORIO ATUAL (Fallback para PWD se PSScriptRoot vazio)
+$CurrentPath = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+$ScriptFile = Join-Path $CurrentPath "setup-local.ps1"
 $LocalAgent = Join-Path $CurrentPath ".agent"
 
 Write-Host ""
@@ -20,7 +21,7 @@ Write-Host ""
 if (Test-Path $LocalAgent) {
     if ((Get-Item $LocalAgent).Attributes -band [IO.FileAttributes]::ReparsePoint) {
         Write-Host "WARN: Detectado link para a central. Removendo para instalacao local..." -ForegroundColor Yellow
-        Remove-Item $LocalAgent -Force
+        cmd /c rmdir "$LocalAgent"
     }
 }
 
@@ -31,24 +32,25 @@ if (-not (Test-Path "$LocalAgent\agents") -or $Force) {
     Write-Host "Installing: Base (ag-kit) locally..." -ForegroundColor Yellow
     try {
         npm install -g @vudovn/ag-kit 2>$null
-        ag-kit init # Isso criara a estrutura base na pasta atual
+        ag-kit init
     } catch {
         Write-Host "Wait: npm falhou. Baixando via Zip..." -ForegroundColor Gray
-        Invoke-WebRequest "https://github.com/vudovn/antigravity-kit/archive/refs/heads/main.zip" -OutFile "kit.zip"
-        Expand-Archive "kit.zip" -DestinationPath "." -Force
-        Copy-Item "antigravity-kit-main\.agent\*" ".agent" -Recurse -Force
-        Remove-Item "kit.zip", "antigravity-kit-main" -Recurse -Force
+        $kitZip = Join-Path $CurrentPath "kit.zip"
+        Invoke-WebRequest "https://github.com/vudovn/antigravity-kit/archive/refs/heads/main.zip" -OutFile $kitZip
+        Expand-Archive $kitZip -DestinationPath $CurrentPath -Force
+        Copy-Item "$CurrentPath\antigravity-kit-main\.agent\*" $LocalAgent -Recurse -Force
+        Remove-Item $kitZip, "$CurrentPath\antigravity-kit-main" -Recurse -Force
     }
 }
 
 # 2. Instalar Skills LOCALMENTE
 $SkillsDest = "$LocalAgent\skills"
-if (-not (Test-Path $SkillsDest) -or (Get-ChildItem $SkillsDest).Count -lt 50 -or $Force) {
+if (-not (Test-Path $SkillsDest) -or (Get-ChildItem $SkillsDest -ErrorAction SilentlyContinue).Count -lt 50 -or $Force) {
     Write-Host "Downloading: 600+ Skills locally..." -ForegroundColor Yellow
-    $SkillsZip = "$CurrentPath\local-skills.zip"
+    $SkillsZip = Join-Path $CurrentPath "local-skills.zip"
     $SkillsUrl = "https://github.com/sickn33/antigravity-awesome-skills/archive/refs/tags/v4.6.0.zip"
     Invoke-WebRequest -Uri $SkillsUrl -OutFile $SkillsZip
-    try { tar -xf $SkillsZip 2>$null } catch { Expand-Archive $SkillsZip -DestinationPath "." -Force }
+    Expand-Archive $SkillsZip -DestinationPath $CurrentPath -Force
     
     if (-not (Test-Path $SkillsDest)) { New-Item -ItemType Directory -Path $SkillsDest -Force | Out-Null }
     $SourceSkills = "$CurrentPath\antigravity-awesome-skills-4.6.0\skills"
@@ -81,4 +83,4 @@ Write-Host "SUCCESS: Workspace isolado configurado com sucesso!" -ForegroundColo
 Write-Host "Este projeto NAO depende da pasta central." -ForegroundColor Gray
 
 # AUTO-DELECAO: Remover este script apos o uso para limpar o workspace
-Remove-Item $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue
+if (Test-Path $ScriptFile) { Remove-Item $ScriptFile -Force -ErrorAction SilentlyContinue }
